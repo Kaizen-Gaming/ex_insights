@@ -18,6 +18,9 @@ defmodule ExInsights.Data.Payload do
     |> create_payload("Event")
   end
 
+  @doc """
+  Create custom metric payload
+  """
   def create_metric_payload(name, value, properties) do
     %{
       metrics: [
@@ -27,7 +30,7 @@ defmodule ExInsights.Data.Payload do
           kind: 0 # Measurement = 0, Aggregation = 1
         }
       ],
-      properties: properties      
+      properties: properties
     }
     |> create_payload("Metric")
   end

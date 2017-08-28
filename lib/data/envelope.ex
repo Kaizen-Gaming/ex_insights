@@ -1,35 +1,37 @@
 defmodule ExInsights.Data.Envelope do
-  @moduledoc """
+  @moduledoc ~S"""
+  Track request envelope
+
   Envelope data looks like this
-
+  ```json
   {
-		"time": "2017-08-24T08:55:56.968Z",
-		"iKey": "some-guid-value-key",
-		"name": "Microsoft.ApplicationInsights.someguidvaluekey.Event",
-		"tags": {
-			"ai.session.id": "SLzGH",
-			"ai.device.id": "browser",
-			"ai.device.type": "Browser",
-			"ai.internal.sdkVersion": "javascript:1.0.11",
-			"ai.user.id": "V2Yph",
-			"ai.operation.id": "VKgP+",
-			"ai.operation.name": "/"
-		},
-		"data": {
-			"baseType": "EventData",
-			"baseData": {
-				"ver": 2,
-				"name": "button clicked",
-				"properties": {
-					"click type": "double click"
-				},
-				"measurements": {
-					"clicks": 2
-				}
-			}
-		}
-	}
-
+    "time": "2017-08-24T08:55:56.968Z",
+    "iKey": "some-guid-value-key",
+    "name": "Microsoft.ApplicationInsights.someguidvaluekey.Event",
+    "tags": {
+      "ai.session.id": "SLzGH",
+      "ai.device.id": "browser",
+      "ai.device.type": "Browser",
+      "ai.internal.sdkVersion": "javascript:1.0.11",
+      "ai.user.id": "V2Yph",
+      "ai.operation.id": "VKgP+",
+      "ai.operation.name": "/"
+    },
+    "data": {
+      "baseType": "EventData",
+      "baseData": {
+        "ver": 2,
+        "name": "button clicked",
+        "properties": {
+          "click type": "double click"
+        },
+        "measurements": {
+          "clicks": 2
+        }
+      }
+    }
+  }
+  ```
   """
 
   @data_version 2

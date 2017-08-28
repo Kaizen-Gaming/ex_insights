@@ -1,13 +1,16 @@
 defmodule ExInsights.Aggregation.Worker do
+
+  @flush_interval_secs 30
+
   @moduledoc """
-  A named genserver responsible for batching telemetry requests. Fires up a separate process every 30s to
+  A named genserver responsible for batching telemetry requests. Fires up a separate process every #{@flush_interval_secs}s to
   upload the data to azure
   """
   use GenServer
 
   @name __MODULE__
-  @flush_interval_millis 60_000
 
+  @doc false
   def start_link(_) do
     GenServer.start_link(@name, [], name: @name)
   end
@@ -17,6 +20,7 @@ defmodule ExInsights.Aggregation.Worker do
     {:ok, []}
   end
 
+  @doc false
   def track(%{} = request) do
     GenServer.cast(@name, {:add, request})
   end
@@ -40,7 +44,7 @@ defmodule ExInsights.Aggregation.Worker do
   end
 
   defp schedule_next_flush do
-    Process.send_after(self(), :flush, @flush_interval_millis)
+    Process.send_after(self(), :flush, @flush_interval_secs * 1000)
   end
 
   defp send_to_azure(requests) do

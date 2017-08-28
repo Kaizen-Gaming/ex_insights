@@ -60,7 +60,7 @@ ExInsights.track_event("click", %{type: "button"}, %{count: 2})
 ExInsights.track_metric("bananas", 10)
 ```
 
-For more details look at the [`ExInsights`](https://hexdocs.pm/ex_insights) module documentation.
+For more details look at the [`ExInsights`](https://hexdocs.pm/ex_insights/ExInsights.html) module documentation.
 
 ## Inner workings
 * Calling any tracking function `ExInsights.track_xxx` from your code will not immediately send the data to Azure. It will instead be aggregated in memory until the `flush_timer` is triggered (every 60 secs) and the data will be batch sent.

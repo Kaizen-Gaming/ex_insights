@@ -7,9 +7,11 @@ defmodule ExInsights.Configuration do
 
   @doc """
   Reads configuration related to the ex_insights app.
-  Provides support for {:system, "VAR_NAME"} configuration.
+  
+  Provides support for `{:system, "VAR_NAME"}` configuration.
   Intended for internal use.
   """
+  @spec get_value(atom | {:system, String.t}) :: any
   def get_value(key) do
      Application.get_env(@app_name, key)
      |> return_value()

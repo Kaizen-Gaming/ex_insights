@@ -1,4 +1,5 @@
 defmodule ExInsights.Aggregation.Supervisor do
+  @moduledoc false
 
   use Supervisor
 
