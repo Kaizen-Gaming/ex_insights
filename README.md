@@ -63,6 +63,7 @@ ExInsights.track_metric("bananas", 10)
 For more details look at the [`ExInsights`](https://hexdocs.pm/ex_insights/ExInsights.html) module documentation.
 
 ## Inner workings
-* Calling any tracking function `ExInsights.track_xxx` from your code will not immediately send the data to Azure. It will instead be aggregated in memory until the `flush_timer` is triggered (every 60 secs) and the data will be batch sent.
+* Calling any tracking function `ExInsights.track_xxx` from your code will not immediately send the data to Azure. It will instead be aggregated inmemory until the `flush_timer` is triggered (every 30 secs) and the data will be batch sent.
+ * When the application shuts down it will attempt to flush any remaining data.
 * If you are behind a firewall (usually happens in production deployments) make sure your network rules **allow HTTP POSTs to https://dc.services.visualstudio.com**
 * If requests to azure tracking services fail (network or server errors or bad requests) you will not be alerted.
