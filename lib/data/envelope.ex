@@ -46,6 +46,26 @@ defmodule ExInsights.Data.Envelope do
   @doc """
   Creates a new envelope for sending a single tracked item to app insights. Intended for internal use only.
   """
+
+  def create(_, _, _, nil, _), do: raise("""
+  Azure app insights instrumentation key not set!
+  1) First get your key as described in the docs https://docs.microsoft.com/en-us/azure/application-insights/app-insights-cloudservices
+  2) Then set it either
+    a) during application execution using Application.put_env(:ex_insights, :instrumentation_key, "0000-1111-2222-3333"), OR
+    b) in your config.exs file using either the vanilla or {:system, "key"} syntax. Examples:
+
+      config :ex_insights,
+        instrumentation_key: "00000-11111-2222-33333"
+
+      OR
+
+      config :ex_insights,
+        instrumentation_key: {:system, "INSTRUMENTATION_KEY"}
+
+      When using the {system, key} syntax make sure that the env variable is defined on system startup, ie to start your app you should do
+      INSTRUMENTATION_KEY=0000-1111-2222-333 iex -S mix
+  """)
+
   def create(%{} = data, type, %DateTime{} = time, instrumentation_key, %{} = tags)
   when is_binary(instrumentation_key) and is_binary(type)
   do

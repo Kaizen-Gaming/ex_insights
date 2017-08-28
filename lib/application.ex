@@ -5,11 +5,12 @@ defmodule ExInsights.Application do
 
   use Application
 
+  alias ExInsights.Configuration
+
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      # Starts a worker by calling: ExInsights.Worker.start_link(arg)
-      # {ExInsights.Worker, arg},
+      ExInsights.Aggregation.Supervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
