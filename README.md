@@ -13,6 +13,7 @@ def deps do
   ]
 end
 ```
+
 #### Note:
 The library is packaged as an application. In `elixir <= 1.3.x` you will need to add it explicitly to the list of
 applications started before your own inside `mix.exs` like this:

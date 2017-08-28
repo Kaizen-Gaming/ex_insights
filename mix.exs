@@ -35,7 +35,8 @@ defmodule ExInsights.Mixfile do
       maintainers: ["bottlenecked"],
       licenses: ["MIT"],
       links: %{"Github" => "https://github.com/StoiximanServices/ex_insights"},
-      source_url: "https://github.com/StoiximanServices/ex_insights"
+      source_url: "https://github.com/StoiximanServices/ex_insights",
+      docs: [extras: ["README.md"]]
     ]
   end
 
