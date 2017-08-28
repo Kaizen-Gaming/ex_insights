@@ -35,19 +35,11 @@ defmodule ExInsights.Data.Envelope do
   @data_version 2
   @app_version Mix.Project.config[:version]
 
-  defstruct [
-    :time,
-    :iKey,
-    :name,
-    :tags,
-    :data
-  ]
-
   @doc """
   Creates a new envelope for sending a single tracked item to app insights. Intended for internal use only.
   """
 
-  def create(_, _, _, nil, _), do: raise("""
+  def create(_, _, _, key, _) when key in [nil, ""], do: raise("""
   Azure app insights instrumentation key not set!
   1) First get your key as described in the docs https://docs.microsoft.com/en-us/azure/application-insights/app-insights-cloudservices
   2) Then set it either
@@ -69,7 +61,7 @@ defmodule ExInsights.Data.Envelope do
   def create(%{} = data, type, %DateTime{} = time, instrumentation_key, %{} = tags)
   when is_binary(instrumentation_key) and is_binary(type)
   do
-    %__MODULE__{
+    %{
       time: DateTime.to_iso8601(time),
       iKey: instrumentation_key,
       name: "Microsoft.ApplicationInsights.#{String.replace(instrumentation_key, "-", "")}.#{type}",

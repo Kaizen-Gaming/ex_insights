@@ -27,8 +27,8 @@ defmodule ExInsights do
     |> track()
   end
 
-  defp track(envelope) do
-    ExInsights.Aggregation.Worker.track(envelope)
+  defp track(payload) do
+    ExInsights.Aggregation.Worker.track(payload)
   end
 
 end

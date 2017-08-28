@@ -32,7 +32,7 @@ defmodule ExInsights.Aggregation.Worker do
 
   def handle_info(:flush, state) do
     spawn(fn ->
-      IO.puts "uploading..."
+      #IO.puts "uploading..."
       send_to_azure(state)
     end)
     schedule_next_flush()
@@ -40,13 +40,13 @@ defmodule ExInsights.Aggregation.Worker do
   end
 
   defp schedule_next_flush do
-    Process.send_after(@name, :flush, @flush_interval_millis)
+    Process.send_after(self(), :flush, @flush_interval_millis)
   end
 
   defp send_to_azure(requests) do
     requests
     |> ExInsights.Client.track()
-    |> IO.inspect(label: "azure response")
+    #|> IO.inspect(label: "azure response")
   end
 
 end

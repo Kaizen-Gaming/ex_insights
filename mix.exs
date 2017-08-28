@@ -7,7 +7,9 @@ defmodule ExInsights.Mixfile do
       version: "0.1.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      description: description(),
+      package: package()
     ]
   end
 
@@ -21,8 +23,20 @@ defmodule ExInsights.Mixfile do
   defp deps do
     [
       {:poison, "~> 3.1"},
-      {:httpoison, "~> 0.13"},
-      {:benchee, "~> 0.9.0", only: :dev}
+      {:httpoison, "~> 0.13"}
     ]
   end
+
+  defp description do
+    "Elixir client library to log telemetry data on Azure Application Insights."
+  end
+
+  defp package do
+    [
+      maintainers: ["bottlenecked"],
+      licenses: ["MIT"],
+      links: %{"Github" => "https://github.com/StoiximanServices/ex_insights"}
+    ]
+  end
+
 end
