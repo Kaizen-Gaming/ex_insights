@@ -3,8 +3,7 @@ defmodule ExInsights do
   Exposes methods for POSTing events & metrics to Azure Application Insights
   """
 
-  alias ExInsights.Data.Envelope
-  alias ExInsights.Configuration, as: Conf
+  alias ExInsights.Data.Payload
 
   @doc """
   Tracks a custom event.
@@ -13,29 +12,23 @@ defmodule ExInsights do
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the ui
   """
   def track_event(name, properties \\ %{}, measurements \\ %{}) do
-    create_event_payload(name, properties, measurements)
+    Payload.create_event_payload(name, properties, measurements)
+    |> track()
+  end
+
+  @doc """
+  Log a numeric value that is not associated with a specific event. Typically used to send regular reports of performance indicators.
+  name: name of the metric (string)
+  value: the value of the metric (number)
+  properties (optional): a map of [string -> string] pairs for adding extra properties to this event
+  """
+  def track_metric(name, value, properties \\ %{}) do
+    Payload.create_metric_payload(name, value, properties)
     |> track()
   end
 
   defp track(envelope) do
     ExInsights.Aggregation.Worker.track(envelope)
-  end
-
-  @doc """
-  Create custom event payload. For internal use only
-  """
-  def create_event_payload(name, properties, measurements) do
-    %{
-      name: name,
-      properties: properties,
-      measurements: measurements
-    }
-    |> create_payload("Event")
-  end
-
-  defp create_payload(data, type) do
-    data
-    |> Envelope.create(type, DateTime.utc_now(), Conf.get_value(:instrumentation_key), Envelope.get_tags())
   end
 
 end

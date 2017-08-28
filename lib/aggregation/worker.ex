@@ -46,7 +46,7 @@ defmodule ExInsights.Aggregation.Worker do
   defp send_to_azure(requests) do
     requests
     |> ExInsights.Client.track()
-    #|> IO.inspect(label: "azure response")
+    |> IO.inspect(label: "azure response")
   end
 
 end
