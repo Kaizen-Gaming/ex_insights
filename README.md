@@ -4,8 +4,7 @@ Elixir client library to log telemetry data on Azure Application Insights.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_insights` to your list of dependencies in `mix.exs`:
+Install from hex by adding `ex_insights` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -50,11 +49,14 @@ If you forget to set the key the application will `raise` with an appropriate me
 All public tracking methods are under the `ExInsights` module. Examples:
 
 ```elixir
-ExInsights.track_event("click") # will post a click custom_event to azure
+# will post a click custom_event to azure
+ExInsights.track_event("click")
 
-ExInsights.track_event("click", %{type: "button"}, %{count: 2}) # with custom defined property "type" and measurement "count"
+# with custom defined property "type" and measurement "count"
+ExInsights.track_event("click", %{type: "button"}, %{count: 2})
 
-ExInsights.track_metric("bananas", 10) # send custom metric data. Does not support aggregated data (count/stdDev, min, max)
+# send custom metric data. Does not support aggregated data (count/stdDev, min, max)
+ExInsights.track_metric("bananas", 10)
 ```
 
 For more details look at the [`ExInsights`](https://hexdocs.pm/ex_insights) module documentation.

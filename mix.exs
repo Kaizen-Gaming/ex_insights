@@ -15,7 +15,6 @@ defmodule ExInsights.Mixfile do
 
   def application do
     [
-      extra_applications: [:logger],
       mod: {ExInsights.Application, []}
     ]
   end
@@ -35,7 +34,8 @@ defmodule ExInsights.Mixfile do
     [
       maintainers: ["bottlenecked"],
       licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/StoiximanServices/ex_insights"}
+      links: %{"Github" => "https://github.com/StoiximanServices/ex_insights"},
+      source_url: "https://github.com/StoiximanServices/ex_insights"
     ]
   end
 
