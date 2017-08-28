@@ -43,6 +43,12 @@ defmodule ExInsights.Aggregation.Worker do
     {:noreply, []}
   end
 
+  def terminate(_reason, state) do
+    #synchronously send remaining data to azure
+    send_to_azure(state)
+    :ok
+  end
+
   defp schedule_next_flush do
     Process.send_after(self(), :flush, @flush_interval_secs * 1000)
   end
