@@ -4,15 +4,23 @@ defmodule ExInsightsTest do
 
   alias ExInsights.Data.Payload
 
-  test "event envelope properly created" do
-    envelope = Payload.create_event_payload("button clicked", %{}, %{})
-    assert_envelope_basics("Event", envelope)
-  end
+  describe "envelope properly created" do
+    test "event" do
+      envelope = Payload.create_event_payload("button clicked", %{}, %{})
+      assert_envelope_basics("Event", envelope)
+    end
 
-  test "metric envelope properly created" do
-    envelope = Payload.create_metric_payload("zombies killed", 4, %{})
-    assert [%{name: "zombies killed", value: 4, kind: 0}] = envelope.data.baseData.metrics
-    assert_envelope_basics("Metric", envelope)
+    test "metric" do
+      envelope = Payload.create_metric_payload("zombies killed", 4, %{})
+      assert [%{name: "zombies killed", value: 4, kind: 0}] = envelope.data.baseData.metrics
+      assert_envelope_basics("Metric", envelope)
+    end
+
+    test "dependency" do
+      envelope = Payload.create_dependency_payload("get_user_balance", "http://my.api/get_balance/rfostini", 1500, true, "user", "my.api", %{})
+      assert %{name: "get_user_balance", data: "http://my.api/get_balance/rfostini", duration: "00:00:01.500", success: true, type: "user", target: "my.api"} = envelope.data.baseData
+      assert_envelope_basics("RemoteDependency", envelope)
+    end
   end
 
   defp assert_envelope_basics(kind, envelope) do

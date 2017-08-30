@@ -8,7 +8,10 @@ defmodule ExInsights.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
+      name: "ExInsights",
       description: description(),
+      source_url: "https://github.com/StoiximanServices/ex_insights",
+      docs: [main: "ExInsights", extras: ["README.md"]],
       package: package()
     ]
   end
@@ -35,9 +38,7 @@ defmodule ExInsights.Mixfile do
     [
       maintainers: ["bottlenecked"],
       licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/StoiximanServices/ex_insights"},
-      source_url: "https://github.com/StoiximanServices/ex_insights",
-      docs: [extras: ["README.md"]]
+      links: %{"Github" => "https://github.com/StoiximanServices/ex_insights"}
     ]
   end
 

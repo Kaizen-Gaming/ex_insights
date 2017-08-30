@@ -5,6 +5,7 @@ defmodule ExInsights.Data.Payload do
 
   alias ExInsights.Data.Envelope
   alias ExInsights.Configuration, as: Conf
+  alias ExInsights.Utils
 
   @doc """
   Create custom event payload.
@@ -33,6 +34,19 @@ defmodule ExInsights.Data.Payload do
       properties: properties
     }
     |> create_payload("Metric")
+  end
+
+  def create_dependency_payload(name, command_name, elapsed_time_ms, success, dependency_type_name, target, properties) do
+    %{
+      name: name,
+      data: command_name,
+      target: target,
+      duration: Utils.ms_to_timespan(elapsed_time_ms),
+      success: success,
+      type: dependency_type_name,
+      properties: properties
+    }
+    |> create_payload("RemoteDependency")
   end
 
   defp create_payload(data, type) do
