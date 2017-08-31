@@ -10,6 +10,12 @@ defmodule ExInsightsTest do
       assert_envelope_basics("Event", envelope)
     end
 
+    test "trace" do
+      envelope = Payload.create_trace_payload("traced", :info, %{})
+      assert %{data: %{baseData: %{message: "traced", properties: %{}, severity_level: 1}}} = envelope
+      assert_envelope_basics("Message", envelope)
+    end
+
     test "metric" do
       envelope = Payload.create_metric_payload("zombies killed", 4, %{})
       assert [%{name: "zombies killed", value: 4, kind: 0}] = envelope.data.baseData.metrics

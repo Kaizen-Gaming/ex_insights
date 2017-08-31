@@ -20,7 +20,19 @@ defmodule ExInsights.Data.Payload do
   end
 
   @doc """
-  Create custom metric payload
+  Create custom trace payload.
+  """
+  def create_trace_payload(message, severity_level, properties) do
+    %{
+      message: message,
+      properties: properties,
+      severity_level: Utils.convert(severity_level)
+    }
+    |> create_payload("Message")
+  end
+
+  @doc """
+  Create custom metric payload.
   """
   def create_metric_payload(name, value, properties) do
     %{
@@ -36,6 +48,9 @@ defmodule ExInsights.Data.Payload do
     |> create_payload("Metric")
   end
 
+  @doc """
+  Create custom dependency payload.
+  """
   def create_dependency_payload(name, command_name, elapsed_time_ms, success, dependency_type_name, target, properties) do
     %{
       name: name,

@@ -21,6 +21,11 @@ defmodule ExInsights do
   """
   @type measurements ::  %{optional(name) => number}
 
+  @typedoc ~S"""
+  Defines the level of severity for the event.
+  """
+  @type severity_level :: :verbose | :info | :warning | :error | :critical
+
   @doc ~S"""
   Log a user action or other occurrence.
 
@@ -41,11 +46,28 @@ defmodule ExInsights do
   end
 
   @doc ~S"""
+  Log a trace message.
+
+  ### Parameters:
+
+  ```
+  message: A string to identify this event in the portal.
+  severity_level: The level of severity for the event.
+  properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  ```
+  """
+  @spec track_trace(String.t, severity_level, properties) :: :ok
+  def track_trace(message, severity_level \\ :info, properties \\ %{}) do
+    Payload.create_trace_payload(message, severity_level, properties)
+    |> track()
+  end
+
+  @doc ~S"""
   Log a numeric value that is not associated with a specific event.
 
   Typically used to send regular reports of performance indicators.
 
-  ### Parameters
+  ### Parameters:
 
   ```
   name: name of the metric
@@ -64,7 +86,7 @@ defmodule ExInsights do
   @doc ~S"""
   Log a dependency, for example requests to an external service or SQL calls.
 
-  ### Parameters
+  ### Parameters:
 
   ```
   name: String that identifies the dependency.
