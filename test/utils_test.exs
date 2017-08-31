@@ -1,5 +1,7 @@
 defmodule ExInsights.UtilsTest do
   use ExUnit.Case, async: true
+  doctest ExInsights.Utils
+
   import ExInsights.Utils
 
   #Ported from https://github.com/Microsoft/ApplicationInsights-node.js/blob/68e217e6c6646114d8df0952437590724070204f/Tests/Library/Util.tests.ts#L141
@@ -75,6 +77,28 @@ defmodule ExInsights.UtilsTest do
 
     test  "fractional milliseconds - too many digits, round up" do
       assert "00:00:01.0015056" == ms_to_timespan(1001.50559)
+    end
+  end
+
+  describe "convert" do
+    test "severity level - verbose" do
+      assert 0 == convert(:verbose)
+    end
+
+    test "severity level - warning" do
+      assert 2 == convert(:warning)
+    end
+
+    test "severity level - error" do
+      assert 3 == convert(:error)
+    end
+
+    test "severity level - critical" do
+      assert 4 == convert(:critical)
+    end
+
+    test "severity level - default" do
+      assert 1 == convert(:wrong)
     end
   end
 

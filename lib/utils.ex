@@ -1,7 +1,23 @@
 defmodule ExInsights.Utils do
   @moduledoc false
 
-  #Convert ms to c# time span format. Ported from https://github.com/Microsoft/ApplicationInsights-node.js/blob/68e217e6c6646114d8df0952437590724070204f/Library/Util.ts#L122
+  @doc ~S"""
+  Convert ms to c# time span format. Ported from https://github.com/Microsoft/ApplicationInsights-node.js/blob/68e217e6c6646114d8df0952437590724070204f/Library/Util.ts#L122
+
+  ### Parameters:
+
+  '''
+  number: Number for time in milliseconds.
+  '''
+
+  ### Examples:
+
+      iex> ExInsights.Utils.ms_to_timespan(1000)
+      "00:00:01.000"
+      iex> ExInsights.Utils.ms_to_timespan(600000)
+      "00:10:00.000"
+  """
+  @spec ms_to_timespan(number :: number) :: String.t
   def ms_to_timespan(number) when not is_number(number), do: ms_to_timespan(0)
 
   def ms_to_timespan(number) when number < 0, do: ms_to_timespan(0)
@@ -41,7 +57,7 @@ defmodule ExInsights.Utils do
     else
       hour
     end
-    
+
     days =
       (number /(1000 * 60 * 60 * 24))
       |> Float.floor()
@@ -66,4 +82,29 @@ defmodule ExInsights.Utils do
     a_floor = a |> Float.floor() |> round()
     rem(a_floor, b) + (a - a_floor)
   end
+
+  @doc ~S"""
+  Converts the severity level to the appropriate value
+
+  ### Parameters:
+
+  ```
+  severity_level: The level of severity for the event.
+  ```
+
+  ### Examples:
+
+      iex> ExInsights.Utils.convert(:info)
+      1
+      iex> ExInsights.Utils.convert(:verbose)
+      0
+
+  """
+  @spec convert(severity_level :: ExInsights.severity_level) :: integer
+  def convert(:verbose), do: 0
+  def convert(:warning), do: 2
+  def convert(:error), do: 3
+  def convert(:critical), do: 4
+  def convert(_info), do: 1
+
 end
