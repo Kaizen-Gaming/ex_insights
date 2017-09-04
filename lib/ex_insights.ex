@@ -1,7 +1,7 @@
 defmodule ExInsights do
   @moduledoc """
   Exposes methods for POSTing events & metrics to Azure Application Insights.
-  For more information on initialization and usage consult the [README.md](/readme.html)
+  For more information on initialization and usage consult the [README.md](readme.html)
   """
 
   alias ExInsights.Data.Payload
