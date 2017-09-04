@@ -4,7 +4,7 @@ defmodule ExInsights.Mixfile do
   def project do
     [
       app: :ex_insights,
-      version: "0.1.1",
+      version: "0.2.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),

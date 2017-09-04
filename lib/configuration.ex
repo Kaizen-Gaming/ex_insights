@@ -11,7 +11,7 @@ defmodule ExInsights.Configuration do
   Provides support for `{:system, "VAR_NAME"}` configuration.
   Intended for internal use.
   """
-  @spec get_value(atom | {:system, String.t}) :: any
+  @spec get_value(atom) :: any
   def get_value(key) do
      Application.get_env(@app_name, key)
      |> return_value()

@@ -9,7 +9,7 @@ Install from hex by adding `ex_insights` to your list of dependencies in `mix.ex
 ```elixir
 def deps do
   [
-    {:ex_insights, "~> 0.1"}
+    {:ex_insights, "~> 0.2"}
   ]
 end
 ```
@@ -28,6 +28,8 @@ end
 ```
 
 ## Configuration
+
+#### Instrumentation key
 You need at the very least to set your instrumentation key in order to start accepting telemetry requests
 on azure. You can do this by setting the `instrumentation_key` property like this:
 
@@ -44,7 +46,15 @@ config :ex_insights,
 # at runtime the application will look for the INSTRUMENTATION_KEY environment variable
 ```
 
-If you forget to set the key the application will `raise` with an appropriate message anytime an `ExInsights.track_xxx` function is used
+If you forget to set the key the application will `raise` with an appropriate message anytime an `ExInsights.track_xxx` function is used.
+
+#### Flush interval
+You can also set the flush interval in seconds (ie the interval at which data will be sent over to azure). The default is `30 seconds`.
+
+```elixir
+config :ex_insights,
+  flush_interval_secs: 30
+```
 
 ## Usage
 All public tracking methods are under the `ExInsights` module. Examples:
@@ -58,12 +68,18 @@ ExInsights.track_event("click", %{type: "button"}, %{count: 2})
 
 # send custom metric data. Does not support aggregated data (count/stdDev, min, max)
 ExInsights.track_metric("bananas", 10)
+
+# log arbitrary data
+ExInsights.track_trace("1-2-3 boom", :warning)
+
+# log time taken for requests to external resources, eg. database or http service calls
+ExInsights.track_dependency("get_user_balance", "http://my.api/get_balance/aviator1", 1500, true, "user", "my.api")
 ```
 
-For more details look at the [`ExInsights`](https://hexdocs.pm/ex_insights/ExInsights.html) module documentation.
+For more details and optional arguments look at the [`ExInsights`](https://hexdocs.pm/ex_insights/ExInsights.html) module documentation.
 
 ## Inner workings
-* Calling any tracking function `ExInsights.track_xxx` from your code will not immediately send the data to Azure. It will instead be aggregated inmemory until the `flush_timer` is triggered (every 30 secs) and the data will be batch sent.
- * When the application shuts down it will attempt to flush any remaining data.
+* Calling any tracking function `ExInsights.track_xxx` from your code will not immediately send the data to Azure. It will instead be aggregated in memory until the `flush_timer` is triggered (every 30 secs, configurable) and the data will be batch sent.
+* When the application shuts down it will attempt to flush any remaining data.
 * If you are behind a firewall (usually happens in production deployments) make sure your network rules **allow HTTP POSTs to https://dc.services.visualstudio.com**
 * If requests to azure tracking services fail (network or server errors or bad requests) you will not be alerted.
