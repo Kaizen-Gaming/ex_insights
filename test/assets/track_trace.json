@@ -1,0 +1,26 @@
+{
+  "time": "2017-09-01T12:06:58.488Z",
+  "iKey": "ed81f212-cefa-45a0-b88d-b19622693995",
+  "name": "Microsoft.ApplicationInsights.ed81f212cefa45a0b88db19622693995.Message",
+  "tags": {
+    "ai.session.id": "JYy/b",
+    "ai.session.isFirst": "true",
+    "ai.device.id": "browser",
+    "ai.device.type": "Browser",
+    "ai.internal.sdkVersion": "javascript:1.0.11",
+    "ai.user.id": "IxFLm",
+    "ai.operation.id": "TBkJG",
+    "ai.operation.name": "/C:/Users/d.triantafyllis/Downloads/index.html"
+  },
+  "data": {
+    "baseType": "MessageData",
+    "baseData": {
+      "ver": 2,
+      "message": "this is a test",
+      "severityLevel": 4,
+      "properties": {
+        "foo": "bar"
+      }
+    }
+  }
+}

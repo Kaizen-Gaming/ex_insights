@@ -26,6 +26,17 @@ defmodule ExInsights do
   """
   @type severity_level :: :verbose | :info | :warning | :error | :critical
 
+  @typedoc ~S"""
+  Represents the exception's stack trace.
+  """
+  @type stack_trace :: [stack_trace_entry]
+  @type stack_trace_entry ::
+        {module, atom, arity_or_args, location} |
+        {(... -> any), arity_or_args, location}
+
+  @typep arity_or_args :: non_neg_integer | list
+  @typep location :: keyword
+
   @doc ~S"""
   Log a user action or other occurrence.
 
@@ -59,6 +70,25 @@ defmodule ExInsights do
   @spec track_trace(String.t, severity_level, properties) :: :ok
   def track_trace(message, severity_level \\ :info, properties \\ %{}) do
     Payload.create_trace_payload(message, severity_level, properties)
+    |> track()
+  end
+
+
+  @doc ~S"""
+  Log an exception you have caught.
+
+  ### Parameters:
+
+  ```
+  exception: An Error from a catch clause, or the string error message.
+  stack_trace: An erlang stacktrace.
+  properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
+  ```
+  """
+  @spec track_exception(String.t, stack_trace, String.t, properties, measurements) :: :ok
+  def track_exception(exception, stack_trace, handle_at \\ nil, properties \\ %{}, measurements \\ %{}) do
+    Payload.create_exception_payload(exception, stack_trace, handle_at, properties, measurements)
     |> track()
   end
 
@@ -105,6 +135,7 @@ defmodule ExInsights do
     |> track()
   end
 
+  @spec track(map) :: :ok
   defp track(payload) do
     ExInsights.Aggregation.Worker.track(payload)
     :ok

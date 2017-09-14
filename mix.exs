@@ -27,6 +27,7 @@ defmodule ExInsights.Mixfile do
       {:poison, "~> 3.1"},
       {:httpoison, "~> 0.13"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
     ]
   end
 

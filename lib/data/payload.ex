@@ -26,9 +26,38 @@ defmodule ExInsights.Data.Payload do
     %{
       message: message,
       properties: properties,
-      severity_level: Utils.convert(severity_level)
+      severityLevel: Utils.convert(severity_level)
     }
     |> create_payload("Message")
+  end
+
+  @doc """
+  Create custom exception payload.
+  """
+  def create_exception_payload(%{__exception__: true, __struct__: type_name, message: message}, stack_trace, handle_at, properties, measurements) do
+    do_create_exception_payload(inspect(type_name), message, stack_trace, handle_at, properties, measurements)
+  end
+
+  def create_exception_payload(exception, stack_trace, handle_at, properties, measurements) when is_binary(exception) do
+    do_create_exception_payload("Thrown", inspect(exception), stack_trace, handle_at, properties, measurements)
+  end
+
+  defp do_create_exception_payload(type_name, message, stack_trace, handle_at, properties, measurements) do
+    %{
+      handledAt: handle_at || "unhandled",
+      exceptions: [
+        %{
+          typeName: type_name,
+          message: message,
+          hasFullStack: !is_nil(stack_trace),
+          parsedStack: Utils.parse_stack_trace(stack_trace)
+        }
+      ],
+      severityLevel: Utils.convert(:error),
+      properties: properties,
+      measurements: measurements
+    }
+    |> create_payload("Exception")
   end
 
   @doc """

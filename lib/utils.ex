@@ -107,4 +107,18 @@ defmodule ExInsights.Utils do
   def convert(:critical), do: 4
   def convert(_info), do: 1
 
+  def parse_stack_trace(stack_trace) do
+    stack_trace |> Enum.with_index() |> Enum.map(&do_parse_stack_trace/1)
+  end
+
+  defp do_parse_stack_trace({{module, function, arity, location}, index}) do
+    %{
+      level: index,
+      method: Exception.format_mfa(module, function, arity),
+      assembly: to_string(Application.get_application(module)),
+      fileName: Keyword.get(location, :file, nil),
+      line: Keyword.get(location, :line, nil)
+    }
+  end
+
 end
