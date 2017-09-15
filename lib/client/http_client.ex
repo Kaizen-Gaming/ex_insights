@@ -10,6 +10,7 @@ defmodule ExInsights.Client.HttpClient do
   @doc """
   POSTs track requests to azure app insights. Internal use only.
   """
+  @impl true
   @spec track([map]) :: {:error, any} | {:ok, any}
   def track(items) when is_list(items) do
     payload = Poison.encode_to_iodata!(items)
