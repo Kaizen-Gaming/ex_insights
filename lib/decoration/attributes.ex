@@ -5,7 +5,8 @@ defmodule ExInsights.Decoration.Attributes do
 
   use Decorator.Define,
     track_event: 0,
-    track_dependency: 1
+    track_dependency: 1,
+    track_exception: 0
 
   def track_event(body, %{name: name}) do
     quote do
@@ -18,10 +19,12 @@ defmodule ExInsights.Decoration.Attributes do
 
   def track_dependency(type, body, %{module: module, name: name, args: args}) do
     quote do
+
       module = unquote(module)
       name = unquote(name)
       args = unquote(args)
       type = unquote(type)
+
       start = :os.timestamp
       try do
 
@@ -58,6 +61,39 @@ defmodule ExInsights.Decoration.Attributes do
     diff = ExInsights.Utils.diff_timestamp_millis(start, finish)
     "#{inspect(module)}.#{name}"
     |> ExInsights.track_dependency(inspect(args), diff, success, type)
+  end
+
+  def track_exception(body, _context) do
+    quote do
+      try do
+
+        unquote(body)
+
+      rescue
+
+        e ->
+          trace = System.stacktrace()
+          ExInsights.track_exception(e, trace)
+          reraise(e, trace)
+
+      catch
+        # see format_exit https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/exception.ex#L364
+
+        :exit, {{%{} = exception, maybe_stacktrace}, {m, f, a}} = reason ->
+          msg = "#{Exception.message(exception)} @ #{Exception.format_mfa(m,f,a)}}"
+          trace = case ExInsights.Utils.stacktrace?(maybe_stacktrace) do
+            true -> maybe_stacktrace
+            false -> []
+          end
+          ExInsights.track_exception(msg, trace)
+          :erlang.exit(self(), reason)
+
+        :exit, reason ->
+          msg = inspect(reason)
+          ExInsights.track_exception(msg, [])
+          :erlang.exit(self(), reason)
+      end
+    end
   end
 
 end

@@ -2,7 +2,7 @@
 
 ## 0.3.0
 - Added `track_exception`
-- Added decorators for `track_event` and `track_dependency`
+- Added decorators for `track_event`, `track_exception`, and `track_dependency`
 - Updated docs
 - Cleaned up specs and added dialyzer
 

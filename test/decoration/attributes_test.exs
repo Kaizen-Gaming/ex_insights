@@ -87,4 +87,44 @@ defmodule ExInsights.Decoration.AttributesTest do
 
   end
 
+  describe "track exception" do
+    test "raising mfa" do
+      defmodule Honey do
+        use ExInsights.Decoration.Attributes
+        @decorate track_exception()
+        def anyone_home?(), do: raise "git gone"
+      end
+
+      assert_raise RuntimeError, &Honey.anyone_home?/0
+      ExInsights.Aggregation.Worker.flush()
+      assert_receive {:items_sent, [item]}, 10000
+      assert %{data: %{baseData: %{exceptions: [%{message: "git gone", parsedStack: _stack}]}}} = item
+    end
+
+    test "process exit" do
+
+      defmodule Splitter do
+        use ExInsights.Decoration.Attributes
+        @decorate track_exception()
+        def split() do
+          ExInsights.TestHelper.create_raising_genserver()
+          {:ok, pid} = TestServer.start()
+          TestServer.raise_me(pid)
+        end
+      end
+
+      Process.flag(:trap_exit, true)
+      Splitter.split()
+      assert_receive {:EXIT, _from, _reason}, 1000
+      Process.flag(:trap_exit, false)
+
+      ExInsights.Aggregation.Worker.flush()
+      assert_receive {:items_sent, [item]}, 1000
+      assert %{data: %{baseData: %{exceptions: [%{message: msg, parsedStack: _stack}]}}} = item
+      assert msg =~ "error babe @ GenServer.call"
+
+    end
+
+  end
+
 end

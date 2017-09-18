@@ -15,7 +15,9 @@ defmodule TryCatchRescueTest do
       fun = fn x -> x <> "boom" end
       fun.(1)
     rescue
-      e -> IO.inspect e
+      e -> 
+        IO.inspect e, label: "boom error"
+        IO.inspect System.stacktrace, label: "stacktrace"
     catch
       # will not get here unless rescue (above) is commented out
       _a, b -> # a will be = :error

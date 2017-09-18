@@ -102,4 +102,25 @@ defmodule ExInsights.UtilsTest do
     end
   end
 
+  describe "stacktrace" do
+    test "empty list" do
+      assert stacktrace?([]) == true
+    end
+
+    test "actual stack_trace" do
+      {:current_stacktrace, trace} = Process.info(self(), :current_stacktrace)
+      assert stacktrace?(trace) == true
+    end
+
+    test "list but not stacktrace" do
+      not_a_trace = [{:module, :function, :arity, "location"} | 5]
+      assert stacktrace?(not_a_trace) == false
+    end
+
+    test "other objects" do
+      assert stacktrace?(%{}) == false
+      assert stacktrace?("not a trace") == false
+    end
+  end
+
 end

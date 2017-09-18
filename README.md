@@ -93,14 +93,19 @@ use ExInsights.Decoration.Attributes
 
 # add the @decorate track_xxx() attribute right above each function you need to track
 
+@decorate track_event() # will log the "update_user_email" event in AppInsights on funtion entry
+def update_user_email(email, user) do
+  # ...
+end
+
 @decorate track_dependency("user-actions") # put under dependency type:user-actions in AppInsights UI
 def login_user(user) do
   # ... maybe call external api here
 end
 
-@decorate track_event() # will log the "update_user_email" event in AppInsights
-def update_user_email(email, user) do
-  # ...
+@decorate track_exception() # will track errors and exits
+def dangerous_stuff do
+  # ... do work that may fail
 end
 ```
 
@@ -109,3 +114,4 @@ end
 * When the application shuts down it will attempt to flush any remaining data.
 * If you are behind a firewall (usually happens in production deployments) make sure your network rules **allow HTTP POSTs to https://dc.services.visualstudio.com**
 * If requests to azure tracking services fail (network or server errors or bad requests) you will not be alerted.
+* `track_dependency` and `track_exception` decorators will try to `rescue`/`catch` any errors (and log those) and then reraise the error / exit as appropriate. This is a different (but hopefully working) approach than what the AppSignal guys do (a separate process monitoring crashes)

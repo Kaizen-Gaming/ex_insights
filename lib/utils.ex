@@ -114,6 +114,15 @@ defmodule ExInsights.Utils do
     |> Kernel.+((microsecs2 - microsecs1) / 1_000)
   end
 
+  @doc """
+  Returns true if the given arg looks like a stacktrace, see stacktrace_entry() in `Exception`
+  """
+  def stacktrace?([]), do: true
+  def stacktrace?([{_m, _f, _a, _l} | t]), do: stacktrace?(t)
+  def stacktrace?([{_f, _a, _l} | t]), do: stacktrace?(t)
+  def stacktrace?([_ | _]), do: false
+  def stacktrace?(_), do: false
+
   def parse_stack_trace(stack_trace) do
     stack_trace |> Enum.with_index() |> Enum.map(&do_parse_stack_trace/1)
   end

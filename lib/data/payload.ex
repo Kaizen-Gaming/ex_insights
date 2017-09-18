@@ -39,7 +39,7 @@ defmodule ExInsights.Data.Payload do
   end
 
   def create_exception_payload(exception, stack_trace, handle_at, properties, measurements) when is_binary(exception) do
-    do_create_exception_payload("Thrown", inspect(exception), stack_trace, handle_at, properties, measurements)
+    do_create_exception_payload("Thrown", exception, stack_trace, handle_at, properties, measurements)
   end
 
   defp do_create_exception_payload(type_name, message, stack_trace, handle_at, properties, measurements) do
