@@ -1,5 +1,7 @@
 # ExInsights
 
+[![Hex.pm](https://img.shields.io/hexpm/v/ex_insights.svg?style=flat-square&colorB=6e347e)](https://hex.pm/packages/ex_insights)
+
 Elixir client library to log telemetry data on Azure Application Insights.
 
 ## Installation
@@ -9,7 +11,7 @@ Install from hex by adding `ex_insights` to your list of dependencies in `mix.ex
 ```elixir
 def deps do
   [
-    {:ex_insights, "~> 0.2"}
+    {:ex_insights, "~> 0.3"}
   ]
 end
 ```
@@ -57,6 +59,9 @@ config :ex_insights,
 ```
 
 ## Usage
+
+### Basic Usage
+
 All public tracking methods are under the `ExInsights` module. Examples:
 
 ```elixir
@@ -77,6 +82,27 @@ ExInsights.track_dependency("get_user_balance", "http://my.api/get_balance/aviat
 ```
 
 For more details and optional arguments look at the [`ExInsights`](https://hexdocs.pm/ex_insights/ExInsights.html) module documentation.
+
+### Advanced usage
+
+Even though you can call `ExInsights.track_xxx` methods directly, the recommended way to use the library is by decorating methods you need to track using [decorators](https://github.com/arjan/decorator).
+
+```elixir
+# Make sure to add the following line before using any decorators
+use ExInsights.Decoration.Attributes
+
+# add the @decorate track_xxx() attribute right above each function you need to track
+
+@decorate track_dependency("user-actions") # put under dependency type:user-actions in AppInsights UI
+def login_user(user) do
+  # ... maybe call external api here
+end
+
+@decorate track_event() # will log the "update_user_email" event in AppInsights
+def update_user_email(email, user) do
+  # ...
+end
+```
 
 ## Inner workings
 * Calling any tracking function `ExInsights.track_xxx` from your code will not immediately send the data to Azure. It will instead be aggregated in memory until the `flush_timer` is triggered (every 30 secs, configurable) and the data will be batch sent.

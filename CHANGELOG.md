@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+- Added `track_exception`
+- Added decorators for `track_event` and `track_dependency`
+- Updated docs
+- Cleaned up specs and added dialyzer
+
 ## 0.2.0
 - Added `track_dependency` and `track_trace`
 - Added `flush_interval_secs` config option
