@@ -107,7 +107,7 @@ defmodule ExInsights.Utils do
   def convert(:critical), do: 4
   def convert(_info), do: 1
 
-  @spec diff_timestamp_millis({integer, integer, integer}, {integer, integer, integer}) :: integer
+  @spec diff_timestamp_millis({integer, integer, integer}, {integer, integer, integer}) :: float
   def diff_timestamp_millis({megasecs1, secs1, microsecs1}, {megasecs2, secs2, microsecs2}) do
     ((megasecs2 - megasecs1) * 1_000_000_000)
     |> Kernel.+((secs2 - secs1) * 1_000)

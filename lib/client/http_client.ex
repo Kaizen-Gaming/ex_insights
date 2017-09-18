@@ -11,9 +11,9 @@ defmodule ExInsights.Client.HttpClient do
   POSTs track requests to azure app insights. Internal use only.
   """
   @impl true
-  @spec track([map]) :: {:error, any} | {:ok, any}
+  @spec track([map]) :: {:error, map} | {:ok, map}
   def track(items) when is_list(items) do
     payload = Poison.encode_to_iodata!(items)
-    HTTPoison.post(@service_url, payload, [content_type: "application/json"])
+    HTTPoison.post(@service_url, payload, %{"Content-Type" => "application/json"})
   end
 end

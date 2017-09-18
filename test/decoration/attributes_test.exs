@@ -3,7 +3,7 @@ defmodule ExInsights.Decoration.AttributesTest do
   require ExInsights.TestHelper
 
   ExInsights.TestHelper.setup_test_client()
-  
+
   test "event is captured" do
 
     defmodule EventTest do

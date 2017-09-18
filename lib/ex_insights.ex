@@ -86,7 +86,7 @@ defmodule ExInsights do
   measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
   ```
   """
-  @spec track_exception(String.t, stack_trace, String.t, properties, measurements) :: :ok
+  @spec track_exception(String.t, stack_trace, String.t | nil, properties, measurements) :: :ok
   def track_exception(exception, stack_trace, handle_at \\ nil, properties \\ %{}, measurements \\ %{}) do
     Payload.create_exception_payload(exception, stack_trace, handle_at, properties, measurements)
     |> track()
@@ -129,7 +129,7 @@ defmodule ExInsights do
   ```
   """
 
-  @spec track_dependency(String.t, String.t, number, boolean, String.t, String.t, properties) :: :ok
+  @spec track_dependency(String.t, String.t, number, boolean, String.t, String.t | nil, properties) :: :ok
   def track_dependency(name, command_name, elapsed_time_ms, success, dependency_type_name \\ "", target \\ nil, properties \\ %{}) do
     Payload.create_dependency_payload(name, command_name, elapsed_time_ms, success, dependency_type_name, target, properties)
     |> track()

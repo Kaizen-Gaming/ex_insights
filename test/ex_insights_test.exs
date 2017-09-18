@@ -67,3 +67,4 @@ defmodule ExInsightsTest do
     assert envelope.time != nil
     assert envelope.iKey ==  ExInsights.TestHelper.get_test_key
   end
+end
