@@ -12,8 +12,17 @@ defmodule ExInsights.Mixfile do
       description: description(),
       source_url: "https://github.com/StoiximanServices/ex_insights",
       docs: [main: "ExInsights", extras: ["README.md"]],
-      package: package()
+      package: package(),
+      elixirc_paths: elixirc_paths(Mix.env)
     ]
+  end
+
+  def elixirc_paths(:test) do
+    ["lib", "test/test_helper"]
+  end
+
+  def elixirc_paths(_) do
+    ["lib"]
   end
 
   def application do
