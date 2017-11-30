@@ -1,9 +1,5 @@
 defmodule ExInsights.TestHelper do
-  @app_name  Mix.Project.config[:app]
-
   def get_test_key, do: "0000-1111-22222-3333"
-
-  def get_app_name, do: @app_name
 
   defmacro setup_test_client do
     quote do
@@ -11,8 +7,8 @@ defmodule ExInsights.TestHelper do
       setup_all do
         import ExInsights.TestHelper
         #substitute real http client for mock
-        Application.put_env(get_app_name(), :client_module, @client)
-        Application.put_env((get_app_name()), :flush_interval_secs, 1)
+        Application.put_env(:ex_insights, :client_module, @client)
+        Application.put_env(:ex_insights, :flush_interval_secs, 1)
         @client.start()
         :ok
       end

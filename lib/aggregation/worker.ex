@@ -8,6 +8,8 @@ defmodule ExInsights.Aggregation.Worker do
 
   @name __MODULE__
 
+  alias ExInsights.Configuration
+
   @doc false
   def start_link(_) do
     GenServer.start_link(@name, [], name: @name)
@@ -58,8 +60,8 @@ defmodule ExInsights.Aggregation.Worker do
   end
 
   defp schedule_next_flush do
-    flush_interval = 
-      (ExInsights.Configuration.get_value(:flush_interval_secs) || 30)
+    flush_interval =
+      Configuration.get_value(:flush_interval_secs, 30)
       |> to_integer()
     Process.send_after(self(), :flush, flush_interval * 1000)
   end
@@ -75,7 +77,7 @@ defmodule ExInsights.Aggregation.Worker do
 
   defp get_client_module do
     # used for mocking as suggested by The Man himself @ http://blog.plataformatec.com.br/2015/10/mocks-and-explicit-contracts/
-    Application.get_env(:ex_insights, :client_module, ExInsights.Client.HttpClient)
+    Configuration.get_value(:client_module, ExInsights.Client.HttpClient)
   end
 
   defp to_integer(""), do: 30
