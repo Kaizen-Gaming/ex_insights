@@ -1,6 +1,6 @@
 defmodule ExInsights do
   @moduledoc """
-  Exposes methods for POSTing events & metrics to Azure Application Insights.
+  Exposes methods for POST events & metrics to Azure Application Insights.
   For more information on initialization and usage consult the [README.md](readme.html)
   """
 
@@ -48,7 +48,7 @@ defmodule ExInsights do
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   ```
   """
-  @spec track_event(String.t, properties, measurements) :: :ok
+  @spec track_event(name :: name, properties :: properties, measurements :: measurements) :: :ok
   def track_event(name, properties \\ %{}, measurements \\ %{})
   when is_binary(name)
   do
@@ -67,7 +67,7 @@ defmodule ExInsights do
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   ```
   """
-  @spec track_trace(String.t, severity_level, properties) :: :ok
+  @spec track_trace(String.t, severity_level :: severity_level, properties :: properties) :: :ok
   def track_trace(message, severity_level \\ :info, properties \\ %{}) do
     Payload.create_trace_payload(message, severity_level, properties)
     |> track()
@@ -86,7 +86,7 @@ defmodule ExInsights do
   measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
   ```
   """
-  @spec track_exception(String.t, stack_trace, String.t | nil, properties, measurements) :: :ok
+  @spec track_exception(String.t, stack_trace :: stack_trace, String.t | nil, properties :: properties, measurements :: measurements) :: :ok
   def track_exception(exception, stack_trace, handle_at \\ nil, properties \\ %{}, measurements \\ %{}) do
     Payload.create_exception_payload(exception, stack_trace, handle_at, properties, measurements)
     |> track()
@@ -105,7 +105,7 @@ defmodule ExInsights do
   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
   ```
   """
-  @spec track_metric(String.t, number, properties) :: :ok
+  @spec track_metric(name :: name, number, properties :: properties) :: :ok
   def track_metric(name, value, properties \\ %{})
   when is_binary(name)
   do
@@ -129,7 +129,7 @@ defmodule ExInsights do
   ```
   """
 
-  @spec track_dependency(String.t, String.t, number, boolean, String.t, String.t | nil, properties) :: :ok
+  @spec track_dependency(name :: name, String.t, number, boolean, String.t, String.t | nil, properties :: properties) :: :ok
   def track_dependency(name, command_name, elapsed_time_ms, success, dependency_type_name \\ "", target \\ nil, properties \\ %{}) do
     Payload.create_dependency_payload(name, command_name, elapsed_time_ms, success, dependency_type_name, target, properties)
     |> track()
