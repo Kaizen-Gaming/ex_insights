@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+- Minor changes in test suite
+- Updated typespecs
+
 ## 0.3.0
 - Added `track_exception`
 - Added decorators for `track_event`, `track_exception`, and `track_dependency`
