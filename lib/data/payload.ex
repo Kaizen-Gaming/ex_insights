@@ -96,7 +96,14 @@ defmodule ExInsights.Data.Payload do
   @doc """
   Create request payload
   """
-  def create_request_payload(name, url, source \\ nil, elapsed_time_ms, resultCode, success) do
+  def create_request_payload(name, url, source \\ nil, elapsed_time_ms, resultCode, success \\ nil) do
+    success =
+      if nil == success do
+        resultCode >= 200 and resultCode < 300
+      else
+        success
+      end
+
     %{
       name: name,
       url: url,
