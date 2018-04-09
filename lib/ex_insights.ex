@@ -135,6 +135,27 @@ defmodule ExInsights do
     |> track()
   end
 
+
+  @doc ~S"""
+  Log a request, for example incoming HTTP requests
+
+  ### Parameters:
+
+  ```
+  name: String that identifies the request
+  url: Request URL
+  source: Request Source. Encapsultes info about the component that initiated the request
+   elapsed_time_ms: Number for elapsed time in milliseconds
+   resultCode: Result code reported by the application
+   success: whetever the request was successfull. by default check for 2xx result codes
+  ```
+  """
+  @spec track_request(name :: name, String.t, String.t, number, String.t | number, boolean) :: :ok
+  def track_request(name, url, source \\ nil, elapsed_time_ms, resultCode, success \\ nil) do
+    Payload.create_request_payload(name, url, source, elapsed_time_ms, resultCode, success)
+    |> track
+  end
+
   @spec track(map) :: :ok
   defp track(payload) do
     ExInsights.Aggregation.Worker.track(payload)

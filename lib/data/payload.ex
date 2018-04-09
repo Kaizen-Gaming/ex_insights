@@ -93,6 +93,22 @@ defmodule ExInsights.Data.Payload do
     |> create_payload("RemoteDependency")
   end
 
+  @doc """
+  Create request payload
+  """
+  def create_request_payload(name, url, source \\ nil, elapsed_time_ms, resultCode, success) do
+    %{
+      name: name,
+      url: url,
+      id: Base.encode16(<<:rand.uniform(438964124) :: size(32)>>),
+      source: source,
+      duration: Utils.ms_to_timespan(elapsed_time_ms),
+      responseCode: resultCode,
+      success: success
+    }
+    |> create_payload("Request")
+  end
+
   defp create_payload(data, type) do
     data
     |> Envelope.create(type, DateTime.utc_now(), Conf.get_value(:instrumentation_key), Envelope.get_tags())
