@@ -33,7 +33,7 @@ defmodule ExInsights.Mixfile do
 
   defp deps do
     [
-      {:poison, "~> 4.0.1"},
+      {:poison, "~> 3.1"},
       {:httpoison, "~> 1.5"},
       {:decorator, "~> 1.3.0"},
       {:ex_doc, "~> 0.20.2", only: :dev, runtime: false},
