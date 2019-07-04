@@ -6,14 +6,14 @@ defmodule ExInsights.Mixfile do
       app: :ex_insights,
       version: "0.3.1",
       elixir: "~> 1.5",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "ExInsights",
       description: description(),
       source_url: "https://github.com/StoiximanServices/ex_insights",
       docs: [main: "ExInsights", extras: ["README.md"]],
       package: package(),
-      elixirc_paths: elixirc_paths(Mix.env)
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
@@ -34,10 +34,10 @@ defmodule ExInsights.Mixfile do
   defp deps do
     [
       {:poison, "~> 3.1"},
-      {:httpoison, "~> 0.13"},
-      {:decorator, "~> 1.2"},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:httpoison, "~> 1.5"},
+      {:decorator, "~> 1.3.0"},
+      {:ex_doc, "~> 0.20.2", only: :dev, runtime: false},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
     ]
   end
 
@@ -52,5 +52,4 @@ defmodule ExInsights.Mixfile do
       links: %{"Github" => "https://github.com/StoiximanServices/ex_insights"}
     ]
   end
-
 end
