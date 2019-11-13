@@ -145,11 +145,11 @@ defmodule ExInsights do
   name: String that identifies the request
   url: Request URL
   source: Request Source. Encapsultes info about the component that initiated the request
-   elapsed_time_ms: Number for elapsed time in milliseconds
-   resultCode: Result code reported by the application
-   success: whetever the request was successfull. by default check for 2xx result codes
-   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
-   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
+  elapsed_time_ms: Number for elapsed time in milliseconds
+  resultCode: Result code reported by the application
+  success: whetever the request was successfull. by default check for 2xx result codes
+  properties (optional): a map of [string -> string] pairs for adding extra properties to this event
+  measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   ```
   """
   @spec track_request(name :: name, String.t, String.t, number, String.t | number, boolean, properties :: properties, measurements :: measurements) :: :ok
