@@ -96,10 +96,10 @@ defmodule ExInsights.Data.Payload do
   @doc """
   Create request payload
   """
-  def create_request_payload(name, url, source \\ nil, elapsed_time_ms, resultCode, success \\ nil, properties, measurements) do
+  def create_request_payload(name, url, source \\ nil, elapsed_time_ms, result_code, success \\ nil, properties, measurements) do
     success =
       if nil == success do
-        resultCode >= 200 and resultCode < 300
+        result_code >= 200 and result_code < 300
       else
         success
       end
@@ -110,7 +110,7 @@ defmodule ExInsights.Data.Payload do
       id: Base.encode16(<<:rand.uniform(438964124) :: size(32)>>),
       source: source,
       duration: Utils.ms_to_timespan(elapsed_time_ms),
-      responseCode: resultCode,
+      responseCode: result_code,
       success: success,
       properties: properties,
       measurements: measurements
