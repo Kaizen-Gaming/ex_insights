@@ -9,17 +9,17 @@ defmodule ExInsights do
   @typedoc """
   Measurement name. Will be used extensively in the app insights UI
   """
-  @type name :: String.t | atom
+  @type name :: String.t() | atom
 
   @typedoc ~S"""
   A map of `[name -> string]` to add metadata to a tracking request
   """
-  @type properties :: %{optional(name) => String.t}
+  @type properties :: %{optional(name) => String.t()}
 
   @typedoc ~S"""
   A map of `[name -> string]` to add measurement data to a tracking request
   """
-  @type measurements ::  %{optional(name) => number}
+  @type measurements :: %{optional(name) => number}
 
   @typedoc ~S"""
   Defines the level of severity for the event.
@@ -31,8 +31,8 @@ defmodule ExInsights do
   """
   @type stack_trace :: [stack_trace_entry]
   @type stack_trace_entry ::
-        {module, atom, arity_or_args, location} |
-        {(... -> any), arity_or_args, location}
+          {module, atom, arity_or_args, location}
+          | {(... -> any), arity_or_args, location}
 
   @typep arity_or_args :: non_neg_integer | list
   @typep location :: keyword
@@ -50,8 +50,7 @@ defmodule ExInsights do
   """
   @spec track_event(name :: name, properties :: properties, measurements :: measurements) :: :ok
   def track_event(name, properties \\ %{}, measurements \\ %{})
-  when is_binary(name)
-  do
+      when is_binary(name) do
     Payload.create_event_payload(name, properties, measurements)
     |> track()
   end
@@ -67,12 +66,11 @@ defmodule ExInsights do
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   ```
   """
-  @spec track_trace(String.t, severity_level :: severity_level, properties :: properties) :: :ok
+  @spec track_trace(String.t(), severity_level :: severity_level, properties :: properties) :: :ok
   def track_trace(message, severity_level \\ :info, properties \\ %{}) do
     Payload.create_trace_payload(message, severity_level, properties)
     |> track()
   end
-
 
   @doc ~S"""
   Log an exception you have caught.
@@ -86,8 +84,20 @@ defmodule ExInsights do
   measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
   ```
   """
-  @spec track_exception(String.t, stack_trace :: stack_trace, String.t | nil, properties :: properties, measurements :: measurements) :: :ok
-  def track_exception(exception, stack_trace, handle_at \\ nil, properties \\ %{}, measurements \\ %{}) do
+  @spec track_exception(
+          String.t(),
+          stack_trace :: stack_trace,
+          String.t() | nil,
+          properties :: properties,
+          measurements :: measurements
+        ) :: :ok
+  def track_exception(
+        exception,
+        stack_trace,
+        handle_at \\ nil,
+        properties \\ %{},
+        measurements \\ %{}
+      ) do
     Payload.create_exception_payload(exception, stack_trace, handle_at, properties, measurements)
     |> track()
   end
@@ -107,8 +117,7 @@ defmodule ExInsights do
   """
   @spec track_metric(name :: name, number, properties :: properties) :: :ok
   def track_metric(name, value, properties \\ %{})
-  when is_binary(name)
-  do
+      when is_binary(name) do
     Payload.create_metric_payload(name, value, properties)
     |> track()
   end
@@ -129,9 +138,71 @@ defmodule ExInsights do
   ```
   """
 
-  @spec track_dependency(name :: name, String.t, number, boolean, String.t, String.t | nil, properties :: properties) :: :ok
-  def track_dependency(name, command_name, elapsed_time_ms, success, dependency_type_name \\ "", target \\ nil, properties \\ %{}) do
-    Payload.create_dependency_payload(name, command_name, elapsed_time_ms, success, dependency_type_name, target, properties)
+  @spec track_dependency(
+          name :: name,
+          String.t(),
+          number,
+          boolean,
+          String.t(),
+          String.t() | nil,
+          properties :: properties
+        ) :: :ok
+  def track_dependency(
+        name,
+        command_name,
+        elapsed_time_ms,
+        success,
+        dependency_type_name \\ "",
+        target \\ nil,
+        properties \\ %{}
+      ) do
+    Payload.create_dependency_payload(
+      name,
+      command_name,
+      elapsed_time_ms,
+      success,
+      dependency_type_name,
+      target,
+      properties
+    )
+    |> track()
+  end
+
+  @doc ~S"""
+  Log a request, for example incoming HTTP requests
+
+  ### Parameters:
+
+  ```
+  name: String that identifies the request
+  url: Request URL
+  source: Request Source. Encapsulates info about the component that initiated the request (can be nil)
+  elapsed_time_ms: Number for elapsed time in milliseconds
+  result_code: Result code reported by the application
+  success: whether the request was successfull
+  properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  ```
+  """
+  @spec track_request(
+          name :: name,
+          String.t(),
+          String.t() | nil,
+          number,
+          String.t() | number,
+          boolean,
+          properties()
+        ) ::
+          :ok
+  def track_request(name, url, source, elapsed_time_ms, result_code, success, properties \\ %{}) do
+    Payload.create_request_payload(
+      name,
+      url,
+      source,
+      elapsed_time_ms,
+      result_code,
+      success,
+      properties
+    )
     |> track()
   end
 
@@ -163,5 +234,4 @@ defmodule ExInsights do
     ExInsights.Aggregation.Worker.track(payload)
     :ok
   end
-
 end

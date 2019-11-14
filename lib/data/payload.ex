@@ -34,15 +34,43 @@ defmodule ExInsights.Data.Payload do
   @doc """
   Create custom exception payload.
   """
-  def create_exception_payload(%{__exception__: true, __struct__: type_name, message: message}, stack_trace, handle_at, properties, measurements) do
-    do_create_exception_payload(inspect(type_name), message, stack_trace, handle_at, properties, measurements)
+  def create_exception_payload(
+        %{__exception__: true, __struct__: type_name, message: message},
+        stack_trace,
+        handle_at,
+        properties,
+        measurements
+      ) do
+    do_create_exception_payload(
+      inspect(type_name),
+      message,
+      stack_trace,
+      handle_at,
+      properties,
+      measurements
+    )
   end
 
-  def create_exception_payload(exception, stack_trace, handle_at, properties, measurements) when is_binary(exception) do
-    do_create_exception_payload("Thrown", exception, stack_trace, handle_at, properties, measurements)
+  def create_exception_payload(exception, stack_trace, handle_at, properties, measurements)
+      when is_binary(exception) do
+    do_create_exception_payload(
+      "Thrown",
+      exception,
+      stack_trace,
+      handle_at,
+      properties,
+      measurements
+    )
   end
 
-  defp do_create_exception_payload(type_name, message, stack_trace, handle_at, properties, measurements) do
+  defp do_create_exception_payload(
+         type_name,
+         message,
+         stack_trace,
+         handle_at,
+         properties,
+         measurements
+       ) do
     %{
       handledAt: handle_at || "unhandled",
       exceptions: [
@@ -69,7 +97,8 @@ defmodule ExInsights.Data.Payload do
         %{
           name: name,
           value: value,
-          kind: 0 # Measurement = 0, Aggregation = 1
+          # Measurement = 0, Aggregation = 1
+          kind: 0
         }
       ],
       properties: properties
@@ -80,7 +109,15 @@ defmodule ExInsights.Data.Payload do
   @doc """
   Create custom dependency payload.
   """
-  def create_dependency_payload(name, command_name, elapsed_time_ms, success, dependency_type_name, target, properties) do
+  def create_dependency_payload(
+        name,
+        command_name,
+        elapsed_time_ms,
+        success,
+        dependency_type_name,
+        target,
+        properties
+      ) do
     %{
       name: name,
       data: command_name,
@@ -96,18 +133,20 @@ defmodule ExInsights.Data.Payload do
   @doc """
   Create request payload
   """
-  def create_request_payload(name, url, source \\ nil, elapsed_time_ms, result_code, success \\ nil, properties, measurements) do
-    success =
-      if nil == success do
-        result_code >= 200 and result_code < 300
-      else
-        success
-      end
-
+  def create_request_payload(
+        name,
+        url,
+        source,
+        elapsed_time_ms,
+        result_code,
+        success,
+        properties,
+        measurements
+      ) do
     %{
       name: name,
       url: url,
-      id: Base.encode16(<<:rand.uniform(438964124) :: size(32)>>),
+      id: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>),
       source: source,
       duration: Utils.ms_to_timespan(elapsed_time_ms),
       responseCode: result_code,
@@ -120,6 +159,11 @@ defmodule ExInsights.Data.Payload do
 
   defp create_payload(data, type) do
     data
-    |> Envelope.create(type, DateTime.utc_now(), Conf.get_value(:instrumentation_key), Envelope.get_tags())
+    |> Envelope.create(
+      type,
+      DateTime.utc_now(),
+      Conf.get_value(:instrumentation_key),
+      Envelope.get_tags()
+    )
   end
 end

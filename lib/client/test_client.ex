@@ -15,12 +15,17 @@ defmodule ExInsights.Client.TestClient do
   end
 
   @impl true
+  def init(init_arg) do
+    {:ok, init_arg}
+  end
+
+  @impl true
   def track(items) do
     GenServer.call(@name, {:track, items})
   end
 
   def subscribe do
-    #poor man's event handler
+    # poor man's event handler
     GenServer.call(@name, {:add_listener, self()})
   end
 
@@ -33,6 +38,7 @@ defmodule ExInsights.Client.TestClient do
     for listener <- listeners do
       send(listener, {:items_sent, items})
     end
+
     {:reply, :ok, listeners}
   end
 
@@ -45,5 +51,4 @@ defmodule ExInsights.Client.TestClient do
   def handle_call(:clear_listeners, _from, _) do
     {:reply, :ok, []}
   end
-
 end

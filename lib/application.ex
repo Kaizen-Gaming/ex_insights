@@ -6,6 +6,7 @@ defmodule ExInsights.Application do
     children = [
       ExInsights.Aggregation.Supervisor
     ]
+
     opts = [strategy: :one_for_one, name: ExInsights.Supervisor]
     Supervisor.start_link(children, opts)
   end
