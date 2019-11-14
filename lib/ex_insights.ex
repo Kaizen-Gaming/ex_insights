@@ -181,6 +181,7 @@ defmodule ExInsights do
   result_code: Result code reported by the application
   success: whether the request was successfull
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   ```
   """
   @spec track_request(
@@ -190,10 +191,11 @@ defmodule ExInsights do
           number,
           String.t() | number,
           boolean,
-          properties()
+          properties :: properties,
+          measurements :: measurements
         ) ::
           :ok
-  def track_request(name, url, source, elapsed_time_ms, result_code, success, properties \\ %{}) do
+  def track_request(name, url, source, elapsed_time_ms, result_code, success, properties \\ %{}, measurements \\ %{}) do
     Payload.create_request_payload(
       name,
       url,
@@ -201,32 +203,10 @@ defmodule ExInsights do
       elapsed_time_ms,
       result_code,
       success,
-      properties
+      properties,
+      measurements
     )
     |> track()
-  end
-
-
-  @doc ~S"""
-  Log a request, for example incoming HTTP requests
-
-  ### Parameters:
-
-  ```
-  name: String that identifies the request
-  url: Request URL
-  source: Request Source. Encapsultes info about the component that initiated the request
-  elapsed_time_ms: Number for elapsed time in milliseconds
-  result_code: Result code reported by the application
-  success: whetever the request was successfull. by default check for 2xx result codes
-  properties (optional): a map of [string -> string] pairs for adding extra properties to this event
-  measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
-  ```
-  """
-  @spec track_request(name :: name, String.t, String.t, number, String.t | number, boolean, properties :: properties, measurements :: measurements) :: :ok
-  def track_request(name, url, source \\ nil, elapsed_time_ms, result_code, success \\ nil, properties \\ %{}, measurements \\ %{}) do
-    Payload.create_request_payload(name, url, source, elapsed_time_ms, result_code, success, properties, measurements)
-    |> track
   end
 
   @spec track(map) :: :ok
