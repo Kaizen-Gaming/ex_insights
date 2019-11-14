@@ -1,11 +1,11 @@
 defmodule ExInsights.Decoration.AttributesTest do
-  use ExUnit.Case #no async here!
+  # no async here!
+  use ExUnit.Case
   require ExInsights.TestHelper
 
   ExInsights.TestHelper.setup_test_client()
 
   test "event is captured" do
-
     defmodule EventTest do
       use ExInsights.Decoration.Attributes
 
@@ -18,12 +18,10 @@ defmodule ExInsights.Decoration.AttributesTest do
     EventTest.hello(4)
     ExInsights.Aggregation.Worker.flush()
     assert_receive {:items_sent, [_]}, 1000
-
   end
 
   describe "dependency tracking" do
     test "happy path" do
-
       defmodule Hello do
         use ExInsights.Decoration.Attributes
         @decorate track_dependency("greetings")
@@ -33,7 +31,15 @@ defmodule ExInsights.Decoration.AttributesTest do
       Hello.hello("John")
       ExInsights.Aggregation.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
-      assert %{data: %{baseData: %{name: "ExInsights.Decoration.AttributesTest.Hello.hello", success: true}}} = item
+
+      assert %{
+               data: %{
+                 baseData: %{
+                   name: "ExInsights.Decoration.AttributesTest.Hello.hello",
+                   success: true
+                 }
+               }
+             } = item
     end
 
     test "happy path with error" do
@@ -53,17 +59,24 @@ defmodule ExInsights.Decoration.AttributesTest do
       defmodule Raisor do
         use ExInsights.Decoration.Attributes
         @decorate track_dependency("raises")
-        def raise(), do: raise "raise and shine"
+        def raise(), do: raise("raise and shine")
       end
 
       assert_raise RuntimeError, &Raisor.raise/0
       ExInsights.Aggregation.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
-      assert %{data: %{baseData: %{name: "ExInsights.Decoration.AttributesTest.Raisor.raise", success: false}}} = item
+
+      assert %{
+               data: %{
+                 baseData: %{
+                   name: "ExInsights.Decoration.AttributesTest.Raisor.raise",
+                   success: false
+                 }
+               }
+             } = item
     end
 
     test "exit" do
-
       Process.flag(:trap_exit, true)
 
       defmodule Quitter do
@@ -82,9 +95,16 @@ defmodule ExInsights.Decoration.AttributesTest do
 
       ExInsights.Aggregation.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
-      assert %{data: %{baseData: %{name: "ExInsights.Decoration.AttributesTest.Quitter.quit", success: false}}} = item
-    end
 
+      assert %{
+               data: %{
+                 baseData: %{
+                   name: "ExInsights.Decoration.AttributesTest.Quitter.quit",
+                   success: false
+                 }
+               }
+             } = item
+    end
   end
 
   describe "track exception" do
@@ -92,17 +112,18 @@ defmodule ExInsights.Decoration.AttributesTest do
       defmodule Honey do
         use ExInsights.Decoration.Attributes
         @decorate track_exception()
-        def anyone_home?(), do: raise "git gone"
+        def anyone_home?(), do: raise("git gone")
       end
 
       assert_raise RuntimeError, &Honey.anyone_home?/0
       ExInsights.Aggregation.Worker.flush()
       assert_receive {:items_sent, [item]}, 10000
-      assert %{data: %{baseData: %{exceptions: [%{message: "git gone", parsedStack: _stack}]}}} = item
+
+      assert %{data: %{baseData: %{exceptions: [%{message: "git gone", parsedStack: _stack}]}}} =
+               item
     end
 
     test "process exit" do
-
       defmodule Splitter do
         use ExInsights.Decoration.Attributes
         @decorate track_exception()
@@ -122,9 +143,6 @@ defmodule ExInsights.Decoration.AttributesTest do
       assert_receive {:items_sent, [item]}, 1000
       assert %{data: %{baseData: %{exceptions: [%{message: msg, parsedStack: _stack}]}}} = item
       assert msg =~ "error babe @ GenServer.call"
-
     end
-
   end
-
 end

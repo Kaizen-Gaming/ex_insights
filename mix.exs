@@ -4,7 +4,7 @@ defmodule ExInsights.Mixfile do
   def project do
     [
       app: :ex_insights,
-      version: "0.3.1",
+      version: "0.4.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -33,10 +33,10 @@ defmodule ExInsights.Mixfile do
 
   defp deps do
     [
-      {:poison, "~> 3.1"},
-      {:httpoison, "~> 1.5"},
-      {:decorator, "~> 1.3.0"},
-      {:ex_doc, "~> 0.20.2", only: :dev, runtime: false},
+      {:poison, "~> 4.0"},
+      {:httpoison, "~> 1.6"},
+      {:decorator, "~> 1.3"},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
     ]
   end

@@ -17,7 +17,7 @@ defmodule ExInsights.Utils do
       iex> ExInsights.Utils.ms_to_timespan(600000)
       "00:10:00.000"
   """
-  @spec ms_to_timespan(number :: number) :: String.t
+  @spec ms_to_timespan(number :: number) :: String.t()
   def ms_to_timespan(number) when not is_number(number), do: ms_to_timespan(0)
 
   def ms_to_timespan(number) when number < 0, do: ms_to_timespan(0)
@@ -28,38 +28,44 @@ defmodule ExInsights.Utils do
       |> mod(60)
       |> to_fixed(7)
       |> String.replace(~r/0{0,4}$/, "")
-    sec = if index_of(sec, ".") < 2 do
-      "0" <> sec
-    else
-      sec
-    end
+
+    sec =
+      if index_of(sec, ".") < 2 do
+        "0" <> sec
+      else
+        sec
+      end
 
     min =
-      (number /(1000 * 60))
+      (number / (1000 * 60))
       |> Float.floor()
       |> round
       |> mod(60)
       |> to_string()
-    min = if String.length(min) < 2 do
-      "0" <> min
-    else
-      min
-    end
+
+    min =
+      if String.length(min) < 2 do
+        "0" <> min
+      else
+        min
+      end
 
     hour =
-      (number /(1000 * 60 * 60))
+      (number / (1000 * 60 * 60))
       |> Float.floor()
       |> round
       |> mod(24)
       |> to_string()
-    hour = if String.length(hour) < 2 do
-      "0" <> hour
-    else
-      hour
-    end
+
+    hour =
+      if String.length(hour) < 2 do
+        "0" <> hour
+      else
+        hour
+      end
 
     days =
-      (number /(1000 * 60 * 60 * 24))
+      (number / (1000 * 60 * 60 * 24))
       |> Float.floor()
       |> round
       |> case do
@@ -67,7 +73,7 @@ defmodule ExInsights.Utils do
         _ -> ""
       end
 
-      "#{days}#{hour}:#{min}:#{sec}"
+    "#{days}#{hour}:#{min}:#{sec}"
   end
 
   defp to_fixed(number, decimals) when is_integer(number), do: to_fixed(number / 1, decimals)
@@ -100,7 +106,7 @@ defmodule ExInsights.Utils do
       0
 
   """
-  @spec convert(severity_level :: ExInsights.severity_level) :: integer
+  @spec convert(severity_level :: ExInsights.severity_level()) :: integer
   def convert(:verbose), do: 0
   def convert(:warning), do: 2
   def convert(:error), do: 3
@@ -136,5 +142,4 @@ defmodule ExInsights.Utils do
       line: Keyword.get(location, :line, nil)
     }
   end
-
 end

@@ -1,6 +1,6 @@
 defmodule ExInsights.Aggregation.WorkerTest do
-  
-  use ExUnit.Case #no async here!
+  # no async here!
+  use ExUnit.Case
   require ExInsights.TestHelper
 
   ExInsights.TestHelper.setup_test_client()
@@ -22,5 +22,4 @@ defmodule ExInsights.Aggregation.WorkerTest do
     ExInsights.track_event("hello2")
     assert_receive {:items_sent, [_]}, 5000
   end
-
 end

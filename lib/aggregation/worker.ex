@@ -1,5 +1,4 @@
 defmodule ExInsights.Aggregation.Worker do
-
   @moduledoc """
   A named genserver responsible for batching telemetry requests. Fires up a separate process every 30secs (configurable) to
   upload the data to azure
@@ -46,15 +45,16 @@ defmodule ExInsights.Aggregation.Worker do
 
   def handle_info(:flush, {_, items}) do
     spawn(fn ->
-      #IO.puts "uploading..."
+      # IO.puts "uploading..."
       send_to_azure(items)
     end)
+
     timer = schedule_next_flush()
     {:noreply, {timer, []}}
   end
 
   def terminate(_reason, {_, items}) do
-    #synchronously send remaining data to azure
+    # synchronously send remaining data to azure
     send_to_azure(items)
     :ok
   end
@@ -63,6 +63,7 @@ defmodule ExInsights.Aggregation.Worker do
     flush_interval =
       Configuration.get_value(:flush_interval_secs, 30)
       |> to_integer()
+
     Process.send_after(self(), :flush, flush_interval * 1000)
   end
 
@@ -70,9 +71,11 @@ defmodule ExInsights.Aggregation.Worker do
 
   defp send_to_azure(requests) do
     client = get_client_module()
+
     requests
     |> client.track()
-    #|> IO.inspect(label: "azure response")
+
+    # |> IO.inspect(label: "azure response")
   end
 
   defp get_client_module do
@@ -83,5 +86,4 @@ defmodule ExInsights.Aggregation.Worker do
   defp to_integer(""), do: 30
   defp to_integer(string) when is_binary(string), do: String.to_integer(string)
   defp to_integer(number) when is_integer(number), do: number
-
 end
