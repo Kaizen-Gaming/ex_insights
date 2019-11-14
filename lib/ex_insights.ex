@@ -181,6 +181,7 @@ defmodule ExInsights do
   result_code: Result code reported by the application
   success: whether the request was successfull
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   ```
   """
   @spec track_request(
@@ -190,10 +191,11 @@ defmodule ExInsights do
           number,
           String.t() | number,
           boolean,
-          properties()
+          properties :: properties,
+          measurements :: measurements
         ) ::
           :ok
-  def track_request(name, url, source, elapsed_time_ms, result_code, success, properties \\ %{}) do
+  def track_request(name, url, source, elapsed_time_ms, result_code, success, properties \\ %{}, measurements \\ %{}) do
     Payload.create_request_payload(
       name,
       url,
@@ -201,7 +203,8 @@ defmodule ExInsights do
       elapsed_time_ms,
       result_code,
       success,
-      properties
+      properties,
+      measurements
     )
     |> track()
   end
