@@ -17,7 +17,7 @@ defmodule ExInsights do
   @type properties :: %{optional(name) => String.t()}
 
   @typedoc ~S"""
-  A map of `[name -> string]` to add measurement data to a tracking request
+  A map of `[name -> number]` to add measurement data to a tracking request
   """
   @type measurements :: %{optional(name) => number}
 
@@ -195,7 +195,16 @@ defmodule ExInsights do
           measurements :: measurements
         ) ::
           :ok
-  def track_request(name, url, source, elapsed_time_ms, result_code, success, properties \\ %{}, measurements \\ %{}) do
+  def track_request(
+        name,
+        url,
+        source,
+        elapsed_time_ms,
+        result_code,
+        success,
+        properties \\ %{},
+        measurements \\ %{}
+      ) do
     Payload.create_request_payload(
       name,
       url,

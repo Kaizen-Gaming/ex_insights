@@ -140,9 +140,9 @@ defmodule ExInsights.Data.Payload do
         elapsed_time_ms,
         result_code,
         success,
-        properties
+        properties,
+        measurements
       ) do
-
     %{
       name: name,
       url: url,
@@ -151,7 +151,8 @@ defmodule ExInsights.Data.Payload do
       duration: Utils.ms_to_timespan(elapsed_time_ms),
       responseCode: result_code,
       success: success,
-      properties: properties
+      properties: properties,
+      measurements: measurements
     }
     |> create_payload("Request")
   end

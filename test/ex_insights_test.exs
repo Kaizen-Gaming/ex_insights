@@ -57,7 +57,8 @@ defmodule ExInsightsTest do
           140,
           200,
           true,
-          %{}
+          %{},
+          %{foo: 2}
         )
 
       assert %{
@@ -69,6 +70,7 @@ defmodule ExInsightsTest do
              } = envelope.data.baseData
 
       assert_envelope_basics("Request", envelope)
+      assert %{foo: 2} = envelope.data.baseData.measurements
     end
   end
 
