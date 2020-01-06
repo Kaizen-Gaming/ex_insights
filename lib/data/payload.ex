@@ -34,15 +34,13 @@ defmodule ExInsights.Data.Payload do
   @doc """
   Create custom exception payload.
   """
-  def create_exception_payload(exception, stack_trace, handle_at, properties, measurements, instrumentation_key \\ nil)
-
   def create_exception_payload(
         %{__exception__: true, __struct__: type_name, message: message},
         stack_trace,
         handle_at,
         properties,
         measurements,
-        instrumentation_key
+        instrumentation_key \\ nil
       ) do
     do_create_exception_payload(
       inspect(type_name),
@@ -64,7 +62,7 @@ defmodule ExInsights.Data.Payload do
       handle_at,
       properties,
       measurements,
-      instrumentation_key
+      instrumentation_key \\ nil
     )
   end
 
@@ -149,8 +147,8 @@ defmodule ExInsights.Data.Payload do
         success,
         properties,
         measurements,
-        instrumentation_key \\ nil,
-        id \\ nil
+        id \\ nil,
+        instrumentation_key \\ nil
       ) do
      id = if (id == nil), do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
     %{
