@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1
+- added measurements to request tracking (thanks @DevExpDev)
+
+## 0.4.0
+- added request tracking (thanks @lafka)
+- formatted code files
+- updated dependencies
+
 ## 0.3.1
 - Minor changes in test suite
 - Updated typespecs

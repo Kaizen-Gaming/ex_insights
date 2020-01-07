@@ -11,9 +11,11 @@ defmodule ExInsights.Aggregation.Supervisor do
   end
 
   def init(_) do
-    Supervisor.init([
-      @worker
-    ], strategy: :one_for_one)
+    Supervisor.init(
+      [
+        @worker
+      ],
+      strategy: :one_for_one
+    )
   end
-
 end

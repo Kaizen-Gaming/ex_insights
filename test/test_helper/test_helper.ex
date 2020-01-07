@@ -6,18 +6,19 @@ defmodule ExInsights.TestHelper do
       @client ExInsights.Client.TestClient
       setup_all do
         import ExInsights.TestHelper
-        #substitute real http client for mock
+        # substitute real http client for mock
         Application.put_env(:ex_insights, :client_module, @client)
         Application.put_env(:ex_insights, :flush_interval_secs, 1)
         @client.start()
         :ok
       end
-    
+
       setup do
         @client.clear_listeners()
         @client.subscribe()
         :ok
       end
+
       @client
     end
   end
@@ -26,19 +27,22 @@ defmodule ExInsights.TestHelper do
     quote do
       defmodule TestServer do
         use GenServer
-  
+
+        def init(init_arg) do
+          {:ok, init_arg}
+        end
+
         def start do
           GenServer.start(__MODULE__, [])
         end
-  
+
         def raise_me(pid) do
           GenServer.call(pid, :raise)
         end
-  
+
         def handle_call(:raise, _, _) do
           raise "error babe"
         end
-  
       end
     end
   end

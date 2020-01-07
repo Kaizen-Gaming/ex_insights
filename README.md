@@ -11,7 +11,7 @@ Install from hex by adding `ex_insights` to your list of dependencies in `mix.ex
 ```elixir
 def deps do
   [
-    {:ex_insights, "~> 0.3"}
+    {:ex_insights, "~> 0.4"}
   ]
 end
 ```
@@ -79,6 +79,9 @@ ExInsights.track_trace("1-2-3 boom", :warning)
 
 # log time taken for requests to external resources, eg. database or http service calls
 ExInsights.track_dependency("get_user_balance", "http://my.api/get_balance/aviator1", 1500, true, "user", "my.api")
+
+# log telemetry data about the incoming request processsed by the application
+ExInsights.track_request("homepage", "http://my.site.com/", "HomePageComponent", 85, 200, true)
 ```
 
 For more details and optional arguments look at the [`ExInsights`](https://hexdocs.pm/ex_insights/ExInsights.html) module documentation.
