@@ -47,8 +47,8 @@ defmodule ExInsights.Data.Envelope do
 
   @type t :: %__MODULE__{
     time: String.t(),
-    name: String.t(),
-    iKey: String.t(),
+    name: String.t() | nil,
+    iKey: String.t() | nil,
     tags: map(),
     data: map()
   }

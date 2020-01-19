@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1
+- fix dialyzer issue
+
+## 0.5.0
+- allow setting instrumentation key on a per request basis
+
 ## 0.4.1
 - added measurements to request tracking (thanks @DevExpDev)
 
