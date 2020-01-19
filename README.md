@@ -11,7 +11,7 @@ Install from hex by adding `ex_insights` to your list of dependencies in `mix.ex
 ```elixir
 def deps do
   [
-    {:ex_insights, "~> 0.4"}
+    {:ex_insights, "~> 0.5"}
   ]
 end
 ```
@@ -50,6 +50,9 @@ config :ex_insights,
 
 If you forget to set the key the application will `raise` with an appropriate message anytime an `ExInsights.track_xxx` function is used.
 
+##### Notes
+- As of version 0.5 you can also set the instrumentation key _per request_.
+
 #### Flush interval
 You can also set the flush interval in seconds (ie the interval at which data will be sent over to azure). The default is `30 seconds`.
 
@@ -80,15 +83,15 @@ ExInsights.track_trace("1-2-3 boom", :warning)
 # log time taken for requests to external resources, eg. database or http service calls
 ExInsights.track_dependency("get_user_balance", "http://my.api/get_balance/aviator1", 1500, true, "user", "my.api")
 
-# log telemetry data about the incoming request processsed by the application
+# log telemetry data about the incoming request processed by the application
 ExInsights.track_request("homepage", "http://my.site.com/", "HomePageComponent", 85, 200, true)
 ```
 
 For more details and optional arguments look at the [`ExInsights`](https://hexdocs.pm/ex_insights/ExInsights.html) module documentation.
 
-### Advanced usage
+### Alternative usage
 
-Even though you can call `ExInsights.track_xxx` methods directly, the recommended way to use the library is by decorating methods you need to track using [decorators](https://github.com/arjan/decorator).
+You can also decorate methods you need to track using [decorators](https://github.com/arjan/decorator).
 
 ```elixir
 # Make sure to add the following line before using any decorators
@@ -117,4 +120,4 @@ end
 * When the application shuts down it will attempt to flush any remaining data.
 * If you are behind a firewall (usually happens in production deployments) make sure your network rules **allow HTTP POSTs to https://dc.services.visualstudio.com**
 * If requests to azure tracking services fail (network or server errors or bad requests) you will not be alerted.
-* `track_dependency` and `track_exception` decorators will try to `rescue`/`catch` any errors (and log those) and then reraise the error / exit as appropriate. This is a different (but hopefully working) approach than what the AppSignal guys do (a separate process monitoring crashes)
+* `track_dependency` and `track_exception` decorators will try to `rescue`/`catch` any errors (and log those) and then re-raise the error / exit as appropriate. This is a different (but hopefully working) approach than what the AppSignal guys do (a separate process monitoring crashes)

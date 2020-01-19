@@ -37,38 +37,28 @@ defmodule ExInsights.Data.Envelope do
   @data_version 2
   @app_version Mix.Project.config()[:version]
 
+  defstruct [
+    :time,
+    :name,
+    :iKey,
+    :tags,
+    :data
+  ]
+
+  @type t :: %__MODULE__{
+    time: String.t(),
+    name: String.t(),
+    iKey: String.t(),
+    tags: map(),
+    data: map()
+  }
+
   @doc """
   Creates a new envelope for sending a single tracked item to app insights. Intended for internal use only.
   """
-
-  def create(_, _, _, key, _) when key in [nil, ""],
-    do:
-      raise("""
-      Azure app insights instrumentation key not set!
-      1) First get your key as described in the docs https://docs.microsoft.com/en-us/azure/application-insights/app-insights-cloudservices
-      2) Then set it either
-        a) during application execution using Application.put_env(:ex_insights, :instrumentation_key, "0000-1111-2222-3333"), OR
-        b) in your config.exs file using either the vanilla or {:system, "KEY"} syntax. Examples:
-
-          config :ex_insights,
-            instrumentation_key: "00000-11111-2222-33333"
-
-          OR
-
-          config :ex_insights,
-            instrumentation_key: {:system, "INSTRUMENTATION_KEY"}
-
-          When using the {:system, "KEY"} syntax make sure that the env variable is defined on system startup, ie to start your app you should do
-          INSTRUMENTATION_KEY=0000-1111-2222-333 iex -S mix
-      """)
-
-  def create(%{} = data, type, %DateTime{} = time, instrumentation_key, %{} = tags)
-      when is_binary(instrumentation_key) and is_binary(type) do
-    %{
+  def create(%{} = data, type, %DateTime{} = time, %{} = tags) when is_binary(type) do
+    %__MODULE__{
       time: DateTime.to_iso8601(time),
-      iKey: instrumentation_key,
-      name:
-        "Microsoft.ApplicationInsights.#{String.replace(instrumentation_key, "-", "")}.#{type}",
       tags: tags,
       data: %{
         baseType: "#{type}Data",
@@ -85,4 +75,34 @@ defmodule ExInsights.Data.Envelope do
       "ai.internal.sdkVersion": "elixir:#{@app_version}"
     }
   end
+
+  def set_instrumentation_key(%__MODULE__{data: %{baseType: baseType}} = envelope, instrumentation_key) do
+    type = String.replace(baseType, "Data", "")
+    name = "Microsoft.ApplicationInsights.#{String.replace(instrumentation_key, "-", "")}.#{type}"
+    %{envelope | name: name, iKey: instrumentation_key}
+  end
+
+  def ensure_instrumentation_key_present(%__MODULE__{iKey: key}) when key in [nil, ""],
+  do:
+    raise("""
+    Azure app insights instrumentation key not set!
+    1) First get your key as described in the docs https://docs.microsoft.com/en-us/azure/application-insights/app-insights-cloudservices
+    2) Then set it either
+      a) during application execution using Application.put_env(:ex_insights, :instrumentation_key, "0000-1111-2222-3333"), OR
+      b) in your config.exs file using either the vanilla or {:system, "KEY"} syntax. Examples:
+
+        config :ex_insights,
+          instrumentation_key: "00000-11111-2222-33333"
+
+        OR
+
+        config :ex_insights,
+          instrumentation_key: {:system, "INSTRUMENTATION_KEY"}
+
+        When using the {:system, "KEY"} syntax make sure that the env variable is defined on system startup, ie to start your app you should do
+        INSTRUMENTATION_KEY=0000-1111-2222-333 iex -S mix OR
+      c) as a paremeter along with each request, ie: ExInsights.track_event(..., instrumentation_key)
+    """)
+
+    def ensure_instrumentation_key_present(%__MODULE__{} = envelope), do: envelope
 end

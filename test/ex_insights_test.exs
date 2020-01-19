@@ -2,7 +2,8 @@ defmodule ExInsightsTest do
   use ExUnit.Case, async: true
   doctest ExInsights
 
-  alias ExInsights.Data.Payload
+  alias ExInsights.Data.{Envelope, Payload}
+  alias ExInsights.TestHelper
 
   describe "envelope properly created" do
     test "event" do
@@ -109,10 +110,16 @@ defmodule ExInsightsTest do
   end
 
   defp assert_envelope_basics(kind, envelope) do
+    envelope = normalize_envelope(envelope)
     assert envelope.data.baseType == "#{kind}Data"
     assert envelope.name |> String.ends_with?(kind)
     assert envelope.data.baseData.ver == 2
     assert envelope.time != nil
     assert envelope.iKey == ExInsights.TestHelper.get_test_key()
+  end
+
+  def normalize_envelope(envelope) do
+    envelope
+    |> Envelope.set_instrumentation_key(TestHelper.get_test_key())
   end
 end

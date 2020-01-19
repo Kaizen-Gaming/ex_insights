@@ -4,7 +4,6 @@ defmodule ExInsights.Data.Payload do
   """
 
   alias ExInsights.Data.Envelope
-  alias ExInsights.Configuration, as: Conf
   alias ExInsights.Utils
 
   @doc """
@@ -157,12 +156,12 @@ defmodule ExInsights.Data.Payload do
     |> create_payload("Request")
   end
 
+  @spec create_payload(data :: map(), type :: String.t()) :: Envelope.t()
   defp create_payload(data, type) do
     data
     |> Envelope.create(
       type,
       DateTime.utc_now(),
-      Conf.get_value(:instrumentation_key),
       Envelope.get_tags()
     )
   end

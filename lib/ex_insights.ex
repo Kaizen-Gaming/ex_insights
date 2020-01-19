@@ -4,7 +4,8 @@ defmodule ExInsights do
   For more information on initialization and usage consult the [README.md](readme.html)
   """
 
-  alias ExInsights.Data.Payload
+  alias ExInsights.Configuration, as: Conf
+  alias ExInsights.Data.{Envelope, Payload}
 
   @typedoc """
   Measurement name. Will be used extensively in the app insights UI
@@ -33,6 +34,7 @@ defmodule ExInsights do
   @type stack_trace_entry ::
           {module, atom, arity_or_args, location}
           | {(... -> any), arity_or_args, location}
+  @type instrumentation_key :: String.t() | nil
 
   @typep arity_or_args :: non_neg_integer | list
   @typep location :: keyword
@@ -46,13 +48,19 @@ defmodule ExInsights do
   name: name of the event (string)
   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
+  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
   """
-  @spec track_event(name :: name, properties :: properties, measurements :: measurements) :: :ok
-  def track_event(name, properties \\ %{}, measurements \\ %{})
+  @spec track_event(
+          name :: name,
+          properties :: properties,
+          measurements :: measurements,
+          instrumentation_key :: instrumentation_key
+        ) :: :ok
+  def track_event(name, properties \\ %{}, measurements \\ %{}, instrumentation_key \\ nil)
       when is_binary(name) do
     Payload.create_event_payload(name, properties, measurements)
-    |> track()
+    |> track(instrumentation_key)
   end
 
   @doc ~S"""
@@ -64,12 +72,18 @@ defmodule ExInsights do
   message: A string to identify this event in the portal.
   severity_level: The level of severity for the event.
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
   """
-  @spec track_trace(String.t(), severity_level :: severity_level, properties :: properties) :: :ok
-  def track_trace(message, severity_level \\ :info, properties \\ %{}) do
+  @spec track_trace(
+          String.t(),
+          severity_level :: severity_level,
+          properties :: properties,
+          instrumentation_key :: instrumentation_key
+        ) :: :ok
+  def track_trace(message, severity_level \\ :info, properties \\ %{}, instrumentation_key \\ nil) do
     Payload.create_trace_payload(message, severity_level, properties)
-    |> track()
+    |> track(instrumentation_key)
   end
 
   @doc ~S"""
@@ -82,6 +96,7 @@ defmodule ExInsights do
   stack_trace: An erlang stacktrace.
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
+  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
   """
   @spec track_exception(
@@ -89,17 +104,19 @@ defmodule ExInsights do
           stack_trace :: stack_trace,
           String.t() | nil,
           properties :: properties,
-          measurements :: measurements
+          measurements :: measurements,
+          instrumentation_key :: instrumentation_key
         ) :: :ok
   def track_exception(
         exception,
         stack_trace,
         handle_at \\ nil,
         properties \\ %{},
-        measurements \\ %{}
+        measurements \\ %{},
+        instrumentation_key \\ nil
       ) do
     Payload.create_exception_payload(exception, stack_trace, handle_at, properties, measurements)
-    |> track()
+    |> track(instrumentation_key)
   end
 
   @doc ~S"""
@@ -113,13 +130,19 @@ defmodule ExInsights do
   name: name of the metric
   value: the value of the metric (number)
   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
+  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
   """
-  @spec track_metric(name :: name, number, properties :: properties) :: :ok
-  def track_metric(name, value, properties \\ %{})
+  @spec track_metric(
+          name :: name,
+          number,
+          properties :: properties,
+          instrumentation_key :: instrumentation_key
+        ) :: :ok
+  def track_metric(name, value, properties \\ %{}, instrumentation_key \\ nil)
       when is_binary(name) do
     Payload.create_metric_payload(name, value, properties)
-    |> track()
+    |> track(instrumentation_key)
   end
 
   @doc ~S"""
@@ -135,6 +158,7 @@ defmodule ExInsights do
   dependency_type_name: String which denotes dependency type. Defaults to nil.
   target: String of the target host of the dependency.
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
   """
 
@@ -145,7 +169,8 @@ defmodule ExInsights do
           boolean,
           String.t(),
           String.t() | nil,
-          properties :: properties
+          properties :: properties,
+          instrumentation_key :: instrumentation_key
         ) :: :ok
   def track_dependency(
         name,
@@ -154,7 +179,8 @@ defmodule ExInsights do
         success,
         dependency_type_name \\ "",
         target \\ nil,
-        properties \\ %{}
+        properties \\ %{},
+        instrumentation_key \\ nil
       ) do
     Payload.create_dependency_payload(
       name,
@@ -165,7 +191,7 @@ defmodule ExInsights do
       target,
       properties
     )
-    |> track()
+    |> track(instrumentation_key)
   end
 
   @doc ~S"""
@@ -182,6 +208,7 @@ defmodule ExInsights do
   success: whether the request was successfull
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
+  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
   """
   @spec track_request(
@@ -192,7 +219,8 @@ defmodule ExInsights do
           String.t() | number,
           boolean,
           properties :: properties,
-          measurements :: measurements
+          measurements :: measurements,
+          instrumentation_key :: instrumentation_key
         ) ::
           :ok
   def track_request(
@@ -203,7 +231,8 @@ defmodule ExInsights do
         result_code,
         success,
         properties \\ %{},
-        measurements \\ %{}
+        measurements \\ %{},
+        instrumentation_key \\ nil
       ) do
     Payload.create_request_payload(
       name,
@@ -215,12 +244,21 @@ defmodule ExInsights do
       properties,
       measurements
     )
-    |> track()
+    |> track(instrumentation_key)
   end
 
-  @spec track(map) :: :ok
-  defp track(payload) do
-    ExInsights.Aggregation.Worker.track(payload)
+  @spec track(map, instrumentation_key()) :: :ok
+  defp track(%Envelope{} = payload, instrumentation_key) do
+    key = read_instrumentation_key(instrumentation_key)
+
+    payload
+    |> Envelope.set_instrumentation_key(key)
+    |> Envelope.ensure_instrumentation_key_present()
+    |> ExInsights.Aggregation.Worker.track()
+
     :ok
   end
+
+  def read_instrumentation_key(key) when is_binary(key) and byte_size(key) > 0, do: key
+  def read_instrumentation_key(_), do: Conf.get_value(:instrumentation_key)
 end
