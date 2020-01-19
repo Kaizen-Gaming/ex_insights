@@ -140,12 +140,13 @@ defmodule ExInsights.Data.Payload do
         result_code,
         success,
         properties,
-        measurements
+        measurements,
+        id
       ) do
     %{
       name: name,
       url: url,
-      id: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>),
+      id: id
       source: source,
       duration: Utils.ms_to_timespan(elapsed_time_ms),
       responseCode: result_code,

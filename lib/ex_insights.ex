@@ -208,6 +208,7 @@ defmodule ExInsights do
   success: whether the request was successfull
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
+  id (optional): a unique identifier representing the request.
   instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
   """
@@ -220,6 +221,7 @@ defmodule ExInsights do
           boolean,
           properties :: properties,
           measurements :: measurements,
+          String.t() | nil,
           instrumentation_key :: instrumentation_key
         ) ::
           :ok
@@ -232,8 +234,10 @@ defmodule ExInsights do
         success,
         properties \\ %{},
         measurements \\ %{},
+        id \\ nil, 
         instrumentation_key \\ nil
       ) do
+    id = if (id == nil), do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
     Payload.create_request_payload(
       name,
       url,
@@ -242,7 +246,8 @@ defmodule ExInsights do
       result_code,
       success,
       properties,
-      measurements
+      measurements,
+      id
     )
     |> track(instrumentation_key)
   end
