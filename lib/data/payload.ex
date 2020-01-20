@@ -146,7 +146,7 @@ defmodule ExInsights.Data.Payload do
     %{
       name: name,
       url: url,
-      id: id
+      id: id,
       source: source,
       duration: Utils.ms_to_timespan(elapsed_time_ms),
       responseCode: result_code,

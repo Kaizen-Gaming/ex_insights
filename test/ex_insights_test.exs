@@ -59,7 +59,8 @@ defmodule ExInsightsTest do
           200,
           true,
           %{},
-          %{foo: 2}
+          %{foo: 2},
+          "random_id"
         )
 
       assert %{
@@ -67,7 +68,8 @@ defmodule ExInsightsTest do
                url: "http://my.site/",
                duration: "00:00:00.140",
                success: true,
-               responseCode: 200
+               responseCode: 200,
+               id: "random_id"
              } = envelope.data.baseData
 
       assert_envelope_basics("Request", envelope)

@@ -1,4 +1,274 @@
 defmodule ExInsights do
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   @moduledoc """
   Exposes methods for POST events & metrics to Azure Application Insights.
   For more information on initialization and usage consult the [README.md](readme.html)
@@ -214,14 +484,14 @@ defmodule ExInsights do
   """
   @spec track_request(
           name :: name,
-          String.t(),
-          String.t() | nil,
-          number,
-          String.t() | number,
-          boolean,
+          url :: String.t(),
+          source :: String.t() | nil,
+          elapsed_time_ms :: number,
+          result_code :: String.t() | number,
+          success :: boolean,
           properties :: properties,
           measurements :: measurements,
-          String.t() | nil,
+          id :: String.t() | nil,
           instrumentation_key :: instrumentation_key
         ) ::
           :ok
@@ -234,7 +504,7 @@ defmodule ExInsights do
         success,
         properties \\ %{},
         measurements \\ %{},
-        id \\ nil, 
+        id \\ nil,
         instrumentation_key \\ nil
       ) do
     id = if (id == nil), do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
