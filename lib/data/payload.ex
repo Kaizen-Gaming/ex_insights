@@ -9,25 +9,25 @@ defmodule ExInsights.Data.Payload do
   @doc """
   Create custom event payload.
   """
-  def create_event_payload(name, properties, measurements) do
+  def create_event_payload(name, properties, measurements, tags) do
     %{
       name: name,
       properties: properties,
       measurements: measurements
     }
-    |> create_payload("Event")
+    |> create_payload("Event", tags)
   end
 
   @doc """
   Create custom trace payload.
   """
-  def create_trace_payload(message, severity_level, properties) do
+  def create_trace_payload(message, severity_level, properties, tags) do
     %{
       message: message,
       properties: properties,
       severityLevel: Utils.convert(severity_level)
     }
-    |> create_payload("Message")
+    |> create_payload("Message", tags)
   end
 
   @doc """
@@ -38,7 +38,8 @@ defmodule ExInsights.Data.Payload do
         stack_trace,
         handle_at,
         properties,
-        measurements
+        measurements,
+        tags
       ) do
     do_create_exception_payload(
       inspect(type_name),
@@ -46,11 +47,12 @@ defmodule ExInsights.Data.Payload do
       stack_trace,
       handle_at,
       properties,
-      measurements
+      measurements,
+      tags
     )
   end
 
-  def create_exception_payload(exception, stack_trace, handle_at, properties, measurements)
+  def create_exception_payload(exception, stack_trace, handle_at, properties, measurements, tags)
       when is_binary(exception) do
     do_create_exception_payload(
       "Thrown",
@@ -58,7 +60,8 @@ defmodule ExInsights.Data.Payload do
       stack_trace,
       handle_at,
       properties,
-      measurements
+      measurements,
+      tags
     )
   end
 
@@ -68,7 +71,8 @@ defmodule ExInsights.Data.Payload do
          stack_trace,
          handle_at,
          properties,
-         measurements
+         measurements,
+         tags
        ) do
     %{
       handledAt: handle_at || "unhandled",
@@ -84,13 +88,13 @@ defmodule ExInsights.Data.Payload do
       properties: properties,
       measurements: measurements
     }
-    |> create_payload("Exception")
+    |> create_payload("Exception", tags)
   end
 
   @doc """
   Create custom metric payload.
   """
-  def create_metric_payload(name, value, properties) do
+  def create_metric_payload(name, value, properties, tags) do
     %{
       metrics: [
         %{
@@ -102,7 +106,7 @@ defmodule ExInsights.Data.Payload do
       ],
       properties: properties
     }
-    |> create_payload("Metric")
+    |> create_payload("Metric", tags)
   end
 
   @doc """
@@ -115,7 +119,8 @@ defmodule ExInsights.Data.Payload do
         success,
         dependency_type_name,
         target,
-        properties
+        properties,
+        tags
       ) do
     %{
       name: name,
@@ -126,7 +131,7 @@ defmodule ExInsights.Data.Payload do
       type: dependency_type_name,
       properties: properties
     }
-    |> create_payload("RemoteDependency")
+    |> create_payload("RemoteDependency", tags)
   end
 
   @doc """
@@ -141,6 +146,7 @@ defmodule ExInsights.Data.Payload do
         success,
         properties,
         measurements,
+        tags,
         id
       ) do
     %{
@@ -154,16 +160,16 @@ defmodule ExInsights.Data.Payload do
       properties: properties,
       measurements: measurements
     }
-    |> create_payload("Request")
+    |> create_payload("Request", tags)
   end
 
-  @spec create_payload(data :: map(), type :: String.t()) :: Envelope.t()
-  defp create_payload(data, type) do
+  @spec create_payload(data :: map(), type :: String.t(), tags :: map()) :: Envelope.t()
+  defp create_payload(data, type, tags) do
     data
     |> Envelope.create(
       type,
       DateTime.utc_now(),
-      Envelope.get_tags()
+      Map.merge(Envelope.get_tags(), tags)
     )
   end
 end
