@@ -48,7 +48,8 @@ defmodule ExInsightsTest do
           "user",
           "my.api",
           %{},
-          %{"ai.operation.id": "foo_id"}
+          %{"ai.operation.id": "foo_id"},
+          "random_id"
         )
 
       assert %{
@@ -57,7 +58,8 @@ defmodule ExInsightsTest do
                duration: "00:00:01.500",
                success: true,
                type: "user",
-               target: "my.api"
+               target: "my.api",
+               id: "random_id"
              } = envelope.data.baseData
         assert %{
         "ai.operation.id": "foo_id",

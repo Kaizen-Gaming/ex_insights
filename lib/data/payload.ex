@@ -121,10 +121,12 @@ defmodule ExInsights.Data.Payload do
         dependency_type_name,
         target,
         properties,
-        tags
+        tags,
+        id
       ) do
     %{
       name: name,
+      id: id,
       data: command_name,
       target: target,
       duration: Utils.ms_to_timespan(elapsed_time_ms),
