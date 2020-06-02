@@ -1,274 +1,4 @@
 defmodule ExInsights do
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   @moduledoc """
   Exposes methods for POST events & metrics to Azure Application Insights.
   For more information on initialization and usage consult the [README.md](readme.html)
@@ -295,7 +25,7 @@ defmodule ExInsights do
   @typedoc ~S"""
   A map of `[name -> string]` to add tags metadata to a tracking request
   """
-  @type tags :: %{optional(name) => string}
+  @type tags :: %{optional(name) => String.t()}
 
   @typedoc ~S"""
   Defines the level of severity for the event.
@@ -334,7 +64,13 @@ defmodule ExInsights do
           tags :: tags,
           instrumentation_key :: instrumentation_key
         ) :: :ok
-  def track_event(name, properties \\ %{}, measurements \\ %{}, tags \\ %{}, instrumentation_key \\ nil)
+  def track_event(
+        name,
+        properties \\ %{},
+        measurements \\ %{},
+        tags \\ %{},
+        instrumentation_key \\ nil
+      )
       when is_binary(name) do
     Payload.create_event_payload(name, properties, measurements, tags)
     |> track(instrumentation_key)
@@ -360,7 +96,13 @@ defmodule ExInsights do
           tags :: tags,
           instrumentation_key :: instrumentation_key
         ) :: :ok
-  def track_trace(message, severity_level \\ :info, properties \\ %{}, tags \\ %{}, instrumentation_key \\ nil) do
+  def track_trace(
+        message,
+        severity_level \\ :info,
+        properties \\ %{},
+        tags \\ %{},
+        instrumentation_key \\ nil
+      ) do
     Payload.create_trace_payload(message, severity_level, properties, tags)
     |> track(instrumentation_key)
   end
@@ -397,7 +139,14 @@ defmodule ExInsights do
         tags \\ %{},
         instrumentation_key \\ nil
       ) do
-    Payload.create_exception_payload(exception, stack_trace, handle_at, properties, measurements, tags)
+    Payload.create_exception_payload(
+      exception,
+      stack_trace,
+      handle_at,
+      properties,
+      measurements,
+      tags
+    )
     |> track(instrumentation_key)
   end
 
@@ -528,7 +277,8 @@ defmodule ExInsights do
         tags \\ %{},
         instrumentation_key \\ nil
       ) do
-    id = if (id == nil), do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
+    id = if id == nil, do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
+
     Payload.create_request_payload(
       name,
       url,

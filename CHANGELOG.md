@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.0
+- __Breaking change__: custom tags as part of payload (thanks @huderlem)
+
 ## 0.5.2
 - allow setting id explicitly on track_request
 
