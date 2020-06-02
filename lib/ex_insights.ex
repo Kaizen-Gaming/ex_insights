@@ -186,6 +186,7 @@ defmodule ExInsights do
   ```
   name: String that identifies the dependency.
   command_name: String of the name of the command made against the dependency (eg. full URL with querystring or SQL command text).
+  start_time: The datetime when the dependency call was initiated.
   elapsed_time_ms: Number for elapsed time in milliseconds of the command made against the dependency.
   success: Boolean which indicates success.
   dependency_type_name: String which denotes dependency type. Defaults to nil.
@@ -199,6 +200,7 @@ defmodule ExInsights do
   @spec track_dependency(
           name :: name,
           String.t(),
+          DateTime,
           number,
           boolean,
           String.t(),
@@ -210,6 +212,7 @@ defmodule ExInsights do
   def track_dependency(
         name,
         command_name,
+        start_time,
         elapsed_time_ms,
         success,
         dependency_type_name \\ "",
@@ -221,6 +224,7 @@ defmodule ExInsights do
     Payload.create_dependency_payload(
       name,
       command_name,
+      start_time,
       elapsed_time_ms,
       success,
       dependency_type_name,
@@ -240,6 +244,7 @@ defmodule ExInsights do
   name: String that identifies the request
   url: Request URL
   source: Request Source. Encapsulates info about the component that initiated the request (can be nil)
+  start_time: The datetime when the request was initiated.
   elapsed_time_ms: Number for elapsed time in milliseconds
   result_code: Result code reported by the application
   success: whether the request was successfull
@@ -254,6 +259,7 @@ defmodule ExInsights do
           name :: name,
           url :: String.t(),
           source :: String.t() | nil,
+          start_time :: DateTime,
           elapsed_time_ms :: number,
           result_code :: String.t() | number,
           success :: boolean,
@@ -268,6 +274,7 @@ defmodule ExInsights do
         name,
         url,
         source,
+        start_time,
         elapsed_time_ms,
         result_code,
         success,
@@ -283,6 +290,7 @@ defmodule ExInsights do
       name,
       url,
       source,
+      start_time,
       elapsed_time_ms,
       result_code,
       success,

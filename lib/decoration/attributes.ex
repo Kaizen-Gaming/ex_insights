@@ -25,11 +25,11 @@ defmodule ExInsights.Decoration.Attributes do
       args = unquote(args)
       type = unquote(type)
 
-      start = :os.timestamp()
+      start = DateTime.utc_now()
 
       try do
         result = unquote(body)
-        finish = :os.timestamp()
+        finish = DateTime.utc_now()
         # success = true
         success = ExInsights.Decoration.Attributes.success?(result)
 
@@ -46,7 +46,7 @@ defmodule ExInsights.Decoration.Attributes do
         result
       rescue
         e ->
-          finish = :os.timestamp()
+          finish = DateTime.utc_now()
           trace = System.stacktrace()
 
           ExInsights.Decoration.Attributes.do_track_dependency(
@@ -62,7 +62,7 @@ defmodule ExInsights.Decoration.Attributes do
           reraise(e, trace)
       catch
         :exit, reason ->
-          finish = :os.timestamp()
+          finish = DateTime.utc_now()
 
           ExInsights.Decoration.Attributes.do_track_dependency(
             start,
@@ -83,10 +83,10 @@ defmodule ExInsights.Decoration.Attributes do
   def success?(_), do: true
 
   def do_track_dependency(start, finish, module, name, args, type, success) do
-    diff = ExInsights.Utils.diff_timestamp_millis(start, finish)
+    diff_ms = DateTime.diff(finish, start, :millisecond)
 
     "#{inspect(module)}.#{name}"
-    |> ExInsights.track_dependency(inspect(args), diff, success, type)
+    |> ExInsights.track_dependency(inspect(args), start, diff_ms, success, type)
   end
 
   def track_exception(body, _context) do
