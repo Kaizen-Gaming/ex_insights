@@ -186,11 +186,13 @@ defmodule ExInsights do
   ```
   name: String that identifies the dependency.
   command_name: String of the name of the command made against the dependency (eg. full URL with querystring or SQL command text).
+  start_time: The datetime when the dependency call was initiated.
   elapsed_time_ms: Number for elapsed time in milliseconds of the command made against the dependency.
   success: Boolean which indicates success.
   dependency_type_name: String which denotes dependency type. Defaults to nil.
   target: String of the target host of the dependency.
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+  id (optional): a unique identifier representing the dependency call.
   tags (optional): map[string, string] - additional application insights tag metadata.
   instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
   ```
@@ -199,34 +201,42 @@ defmodule ExInsights do
   @spec track_dependency(
           name :: name,
           String.t(),
+          DateTime,
           number,
           boolean,
           String.t(),
           String.t() | nil,
           properties :: properties,
+          id :: String.t() | nil,
           tags :: tags,
           instrumentation_key :: instrumentation_key
         ) :: :ok
   def track_dependency(
         name,
         command_name,
+        start_time,
         elapsed_time_ms,
         success,
         dependency_type_name \\ "",
         target \\ nil,
         properties \\ %{},
+        id \\ nil,
         tags \\ %{},
         instrumentation_key \\ nil
       ) do
+    id = if id == nil, do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
+
     Payload.create_dependency_payload(
       name,
       command_name,
+      start_time,
       elapsed_time_ms,
       success,
       dependency_type_name,
       target,
       properties,
-      tags
+      tags,
+      id
     )
     |> track(instrumentation_key)
   end
@@ -240,6 +250,7 @@ defmodule ExInsights do
   name: String that identifies the request
   url: Request URL
   source: Request Source. Encapsulates info about the component that initiated the request (can be nil)
+  start_time: The datetime when the request was initiated.
   elapsed_time_ms: Number for elapsed time in milliseconds
   result_code: Result code reported by the application
   success: whether the request was successfull
@@ -254,6 +265,7 @@ defmodule ExInsights do
           name :: name,
           url :: String.t(),
           source :: String.t() | nil,
+          start_time :: DateTime,
           elapsed_time_ms :: number,
           result_code :: String.t() | number,
           success :: boolean,
@@ -268,6 +280,7 @@ defmodule ExInsights do
         name,
         url,
         source,
+        start_time,
         elapsed_time_ms,
         result_code,
         success,
@@ -283,6 +296,7 @@ defmodule ExInsights do
       name,
       url,
       source,
+      start_time,
       elapsed_time_ms,
       result_code,
       success,

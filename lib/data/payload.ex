@@ -115,15 +115,18 @@ defmodule ExInsights.Data.Payload do
   def create_dependency_payload(
         name,
         command_name,
+        start_time,
         elapsed_time_ms,
         success,
         dependency_type_name,
         target,
         properties,
-        tags
+        tags,
+        id
       ) do
     %{
       name: name,
+      id: id,
       data: command_name,
       target: target,
       duration: Utils.ms_to_timespan(elapsed_time_ms),
@@ -131,7 +134,7 @@ defmodule ExInsights.Data.Payload do
       type: dependency_type_name,
       properties: properties
     }
-    |> create_payload("RemoteDependency", tags)
+    |> create_payload("RemoteDependency", tags, start_time)
   end
 
   @doc """
@@ -141,6 +144,7 @@ defmodule ExInsights.Data.Payload do
         name,
         url,
         source,
+        start_time,
         elapsed_time_ms,
         result_code,
         success,
@@ -160,15 +164,19 @@ defmodule ExInsights.Data.Payload do
       properties: properties,
       measurements: measurements
     }
-    |> create_payload("Request", tags)
+    |> create_payload("Request", tags, start_time)
   end
 
-  @spec create_payload(data :: map(), type :: String.t(), tags :: map()) :: Envelope.t()
-  defp create_payload(data, type, tags) do
+  @spec create_payload(
+    data :: map(),
+    type :: String.t(),
+    tags :: map()) :: Envelope.t(),
+    start_time :: DateTime | nil
+  defp create_payload(data, type, tags, start_time \\ nil) do
     data
     |> Envelope.create(
       type,
-      DateTime.utc_now(),
+      start_time || DateTime.utc_now(),
       Map.merge(Envelope.get_tags(), tags)
     )
   end

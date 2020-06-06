@@ -42,12 +42,14 @@ defmodule ExInsightsTest do
         Payload.create_dependency_payload(
           "get_user_balance",
           "http://my.api/get_balance/rfostini",
+          DateTime.utc_now(),
           1500,
           true,
           "user",
           "my.api",
           %{},
-          %{"ai.operation.id": "foo_id"}
+          %{"ai.operation.id": "foo_id"},
+          "random_id"
         )
 
       assert %{
@@ -56,7 +58,8 @@ defmodule ExInsightsTest do
                duration: "00:00:01.500",
                success: true,
                type: "user",
-               target: "my.api"
+               target: "my.api",
+               id: "random_id"
              } = envelope.data.baseData
         assert %{
         "ai.operation.id": "foo_id",
@@ -71,6 +74,7 @@ defmodule ExInsightsTest do
           "homepage",
           "http://my.site/",
           "homeModule",
+          DateTime.utc_now(),
           140,
           200,
           true,
