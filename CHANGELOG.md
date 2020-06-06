@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.0
+- __Breaking change__: start time and dependency id parameters as part of request and track dependency payload (thanks @huderlem)
+
 ## 0.6.0
 - __Breaking change__: custom tags as part of payload (thanks @huderlem)
 

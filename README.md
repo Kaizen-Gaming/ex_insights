@@ -11,7 +11,7 @@ Install from hex by adding `ex_insights` to your list of dependencies in `mix.ex
 ```elixir
 def deps do
   [
-    {:ex_insights, "~> 0.6"}
+    {:ex_insights, "~> 0.7"}
   ]
 end
 ```

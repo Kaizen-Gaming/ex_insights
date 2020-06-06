@@ -201,7 +201,7 @@ defmodule ExInsights do
   @spec track_dependency(
           name :: name,
           String.t(),
-          DateTime,
+          DateTime.t(),
           number,
           boolean,
           String.t(),
@@ -265,7 +265,7 @@ defmodule ExInsights do
           name :: name,
           url :: String.t(),
           source :: String.t() | nil,
-          start_time :: DateTime,
+          start_time :: DateTime.t(),
           elapsed_time_ms :: number,
           result_code :: String.t() | number,
           success :: boolean,
