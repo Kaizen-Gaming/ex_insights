@@ -7,30 +7,6 @@ defmodule ExInsights.Data.Payload do
   alias ExInsights.Utils
 
   @doc """
-  Create custom event payload.
-  """
-  def create_event_payload(name, properties, measurements, tags) do
-    %{
-      name: name,
-      properties: properties,
-      measurements: measurements
-    }
-    |> create_payload("Event", tags)
-  end
-
-  @doc """
-  Create custom trace payload.
-  """
-  def create_trace_payload(message, severity_level, properties, tags) do
-    %{
-      message: message,
-      properties: properties,
-      severityLevel: Utils.convert(severity_level)
-    }
-    |> create_payload("Message", tags)
-  end
-
-  @doc """
   Create custom exception payload.
   """
   def create_exception_payload(
@@ -167,11 +143,14 @@ defmodule ExInsights.Data.Payload do
     |> create_payload("Request", tags, start_time)
   end
 
-  @spec create_payload(
-    data :: map(),
-    type :: String.t(),
-    tags :: map()) :: Envelope.t(),
+  @spec(
+    create_payload(
+      data :: map(),
+      type :: String.t(),
+      tags :: map()
+    ) :: Envelope.t(),
     start_time :: DateTime | nil
+  )
   defp create_payload(data, type, tags, start_time \\ nil) do
     data
     |> Envelope.create(

@@ -106,7 +106,7 @@ defmodule ExInsights.Utils do
       0
 
   """
-  @spec convert(severity_level :: ExInsights.severity_level()) :: integer
+  @spec convert(severity_level :: ExInsights.severity_level()) :: non_neg_integer()
   def convert(:verbose), do: 0
   def convert(:warning), do: 2
   def convert(:error), do: 3
