@@ -1,6 +1,8 @@
 defmodule ExInsights.TestHelper do
   def get_test_key, do: "0000-1111-22222-3333"
 
+  def to_envelope(telemetry), do: ExInsights.Envelope.wrap(telemetry, get_test_key())
+
   defmacro setup_test_client do
     quote do
       @client ExInsights.Client.TestClient

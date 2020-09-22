@@ -122,5 +122,27 @@ defmodule ExInsights.UtilsTest do
       assert stacktrace?(%{}) == false
       assert stacktrace?("not a trace") == false
     end
+
+    test "thrown" do
+      f = fn -> throw("biscuits") end
+
+      try do
+        f.()
+      catch
+        _ ->
+          stacktrace = __STACKTRACE__
+
+          assert [
+                   %{
+                     assembly: "",
+                     fileName: 'test/utils_test.exs',
+                     level: 0,
+                     line: 127,
+                     method: "anonymous fn/0 in ExInsights.UtilsTest.\"test stacktrace thrown\"/1"
+                   }
+                   | _
+                 ] = parse_stack_trace(stacktrace)
+      end
+    end
   end
 end

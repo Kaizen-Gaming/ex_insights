@@ -142,4 +142,14 @@ defmodule ExInsights.Utils do
       line: Keyword.get(location, :line, nil)
     }
   end
+
+  defp do_parse_stack_trace({{fun, arity, location}, index}) do
+    %{
+      level: index,
+      method: Exception.format_fa(fun, arity),
+      assembly: "Anonymous",
+      fileName: Keyword.get(location, :file, nil),
+      line: Keyword.get(location, :line, nil)
+    }
+  end
 end

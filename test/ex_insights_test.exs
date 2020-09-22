@@ -4,35 +4,53 @@ defmodule ExInsightsTest do
 
   alias ExInsights.Data.{Envelope, Payload}
   alias ExInsights.TestHelper
+  alias ExInsights.Telemetry.{EventTelemetry, TraceTelemetry, ExceptionTelemetry, MetricTelemetry}
 
-  describe "envelope properly created" do
+  import TestHelper, only: [to_envelope: 1]
+
+  describe "envelope:" do
     test "event" do
-      envelope = Payload.create_event_payload("button clicked", %{}, %{}, %{"ai.operation.id": "foo_id"})
+      envelope =
+        EventTelemetry.new("button clicked", tags: %{"ai.operation.id" => "foo_id"})
+        |> to_envelope()
+
       assert %{
-        "ai.operation.id": "foo_id",
-        "ai.internal.sdkVersion": _,
-      } = envelope.tags
+               "ai.operation.id" => "foo_id",
+               "ai.internal.sdkVersion" => _
+             } = envelope.tags
+
       assert_envelope_basics("Event", envelope)
     end
 
     test "trace" do
-      envelope = Payload.create_trace_payload("traced", :info, %{}, %{"ai.operation.id": "foo_id"})
+      envelope =
+        TraceTelemetry.new("traced",
+          severity_level: :warning,
+          tags: %{"ai.operation.id" => "foo_id"}
+        )
+        |> to_envelope()
+
       assert %{
-        "ai.operation.id": "foo_id",
-        "ai.internal.sdkVersion": _,
-      } = envelope.tags
+               "ai.operation.id" => "foo_id",
+               "ai.internal.sdkVersion" => _
+             } = envelope.tags
+
       assert envelope.data.baseData.message == "traced"
       assert envelope.data.baseData.properties == %{}
-      assert envelope.data.baseData.severityLevel == 1
+      assert envelope.data.baseData.severityLevel == 2
       assert_envelope_basics("Message", envelope)
     end
 
     test "metric" do
-      envelope = Payload.create_metric_payload("zombies killed", 4, %{}, %{"ai.operation.id": "foo_id"})
+      envelope =
+        MetricTelemetry.new("zombies killed", 4, tags: %{"ai.operation.id" => "foo_id"})
+        |> to_envelope()
+
       assert %{
-        "ai.operation.id": "foo_id",
-        "ai.internal.sdkVersion": _,
-      } = envelope.tags
+               "ai.operation.id" => "foo_id",
+               "ai.internal.sdkVersion" => _
+             } = envelope.tags
+
       assert [%{name: "zombies killed", value: 4, kind: 0}] = envelope.data.baseData.metrics
       assert_envelope_basics("Metric", envelope)
     end
@@ -61,10 +79,12 @@ defmodule ExInsightsTest do
                target: "my.api",
                id: "random_id"
              } = envelope.data.baseData
-        assert %{
-        "ai.operation.id": "foo_id",
-        "ai.internal.sdkVersion": _,
-      } = envelope.tags
+
+      assert %{
+               "ai.operation.id": "foo_id",
+               "ai.internal.sdkVersion": _
+             } = envelope.tags
+
       assert_envelope_basics("RemoteDependency", envelope)
     end
 
@@ -94,9 +114,9 @@ defmodule ExInsightsTest do
              } = envelope.data.baseData
 
       assert %{
-        "ai.operation.id": "foo_id",
-        "ai.internal.sdkVersion": _,
-      } = envelope.tags
+               "ai.operation.id": "foo_id",
+               "ai.internal.sdkVersion": _
+             } = envelope.tags
 
       assert_envelope_basics("Request", envelope)
       assert %{foo: 2} = envelope.data.baseData.measurements
@@ -122,16 +142,20 @@ defmodule ExInsightsTest do
       ]
 
       envelope =
-        Payload.create_exception_payload(exception, stack_trace, "handle", %{"foo" => "bar"}, %{
-          "world" => 1
-        }, %{
-          "ai.operation.id": "foo_id",
-        })
+        ExceptionTelemetry.new(exception,
+          stack_trace: stack_trace,
+          handled_at: "handle",
+          properties: %{"foo" => "bar"},
+          measurements: %{"world" => 1},
+          tags: %{"ai.operation.id" => "foo_id"}
+        )
+        |> to_envelope()
 
       assert %{
-        "ai.operation.id": "foo_id",
-        "ai.internal.sdkVersion": _,
-      } = envelope.tags
+               "ai.operation.id" => "foo_id",
+               "ai.internal.sdkVersion" => _
+             } = envelope.tags
+
       assert envelope.data.baseData.handledAt == json["data"]["baseData"]["handledAt"]
       [%{parsedStack: parsed_stack}] = envelope.data.baseData.exceptions
       assert [level_0 = %{level: 0}, %{level: 1}] = parsed_stack
@@ -144,16 +168,10 @@ defmodule ExInsightsTest do
   end
 
   defp assert_envelope_basics(kind, envelope) do
-    envelope = normalize_envelope(envelope)
     assert envelope.data.baseType == "#{kind}Data"
     assert envelope.name |> String.ends_with?(kind)
     assert envelope.data.baseData.ver == 2
     assert envelope.time != nil
     assert envelope.iKey == ExInsights.TestHelper.get_test_key()
-  end
-
-  def normalize_envelope(envelope) do
-    envelope
-    |> Envelope.set_instrumentation_key(TestHelper.get_test_key())
   end
 end

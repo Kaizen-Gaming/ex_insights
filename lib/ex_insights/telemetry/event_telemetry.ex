@@ -6,7 +6,7 @@ defmodule ExInsights.Telemetry.EventTelemetry do
   alias ExInsights.Telemetry.{Types, CommonTelemetry}
 
   @type t() :: %__MODULE__{
-          name: String.t(),
+          name: Types.name(),
           measurements: Types.measurements(),
           common: CommonTelemetry.t()
         }
@@ -20,7 +20,7 @@ defmodule ExInsights.Telemetry.EventTelemetry do
     :common
   ]
 
-  @spec new(name :: String.t(), options :: [option]) :: t()
+  @spec new(name :: Types.name(), options :: [option]) :: t()
   def new(name, options \\ []) do
     %__MODULE__{
       name: name,
