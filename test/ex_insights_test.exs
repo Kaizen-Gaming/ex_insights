@@ -4,7 +4,14 @@ defmodule ExInsightsTest do
 
   alias ExInsights.Data.{Envelope, Payload}
   alias ExInsights.TestHelper
-  alias ExInsights.Telemetry.{EventTelemetry, TraceTelemetry, ExceptionTelemetry, MetricTelemetry}
+
+  alias ExInsights.Telemetry.{
+    EventTelemetry,
+    TraceTelemetry,
+    ExceptionTelemetry,
+    MetricTelemetry,
+    DependencyTelemetry
+  }
 
   import TestHelper, only: [to_envelope: 1]
 
@@ -57,32 +64,25 @@ defmodule ExInsightsTest do
 
     test "dependency" do
       envelope =
-        Payload.create_dependency_payload(
-          "get_user_balance",
-          "http://my.api/get_balance/rfostini",
-          DateTime.utc_now(),
-          1500,
-          true,
-          "user",
-          "my.api",
-          %{},
-          %{"ai.operation.id": "foo_id"},
-          "random_id"
+        DependencyTelemetry.new("get_user_balance", "random_id", 1500, true,
+          data: "http://my.api/get_balance/rfostini",
+          tags: %{"ai.operation.id" => "foo_id"}
         )
+        |> to_envelope()
 
       assert %{
                name: "get_user_balance",
                data: "http://my.api/get_balance/rfostini",
                duration: "00:00:01.500",
                success: true,
-               type: "user",
-               target: "my.api",
+               dependencyTypeName: "Http",
+               target: "my.api|random_id",
                id: "random_id"
              } = envelope.data.baseData
 
       assert %{
-               "ai.operation.id": "foo_id",
-               "ai.internal.sdkVersion": _
+               "ai.operation.id" => "foo_id",
+               "ai.internal.sdkVersion" => _
              } = envelope.tags
 
       assert_envelope_basics("RemoteDependency", envelope)

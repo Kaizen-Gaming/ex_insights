@@ -7,34 +7,6 @@ defmodule ExInsights.Data.Payload do
   alias ExInsights.Utils
 
   @doc """
-  Create custom dependency payload.
-  """
-  def create_dependency_payload(
-        name,
-        command_name,
-        start_time,
-        elapsed_time_ms,
-        success,
-        dependency_type_name,
-        target,
-        properties,
-        tags,
-        id
-      ) do
-    %{
-      name: name,
-      id: id,
-      data: command_name,
-      target: target,
-      duration: Utils.ms_to_timespan(elapsed_time_ms),
-      success: success,
-      type: dependency_type_name,
-      properties: properties
-    }
-    |> create_payload("RemoteDependency", tags, start_time)
-  end
-
-  @doc """
   Create request payload
   """
   def create_request_payload(

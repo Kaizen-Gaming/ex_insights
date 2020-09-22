@@ -32,4 +32,9 @@ defmodule ExInsights.Telemetry.Types do
   Defines the level of severity for the trace.
   """
   @type severity_level :: :verbose | :info | :warning | :error | :critical
+
+  @typedoc """
+  Duration in milliseconds
+  """
+  @type millisecond :: non_neg_integer()
 end

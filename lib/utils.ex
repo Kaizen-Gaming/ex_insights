@@ -152,4 +152,21 @@ defmodule ExInsights.Utils do
       line: Keyword.get(location, :line, nil)
     }
   end
+
+  @spec try_extract_hostname_and_port(String.t()) :: {:ok, String.t()} | {:error, :invalid_url}
+  def try_extract_hostname_and_port(url) do
+    ~r/^(?<protocol>http|https|ftp):\/\/(?<host>[\w\.-]+)(?::(?<port>\d{1,5}))?(?<path>[^?]+)(?:\?(?<query>.*))?$/
+    |> Regex.named_captures(url)
+    |> case do
+      nil ->
+        {:error, :invalid_url}
+
+      map ->
+        if map["port"] != "" do
+          {:ok, "#{map["host"]}:#{map["port"]}"}
+        else
+          {:ok, map["host"]}
+        end
+    end
+  end
 end
