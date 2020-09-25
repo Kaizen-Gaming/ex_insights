@@ -6,36 +6,6 @@ defmodule ExInsights.Data.Payload do
   alias ExInsights.Data.Envelope
   alias ExInsights.Utils
 
-  @doc """
-  Create request payload
-  """
-  def create_request_payload(
-        name,
-        url,
-        source,
-        start_time,
-        elapsed_time_ms,
-        result_code,
-        success,
-        properties,
-        measurements,
-        tags,
-        id
-      ) do
-    %{
-      name: name,
-      url: url,
-      id: id,
-      source: source,
-      duration: Utils.ms_to_timespan(elapsed_time_ms),
-      responseCode: result_code,
-      success: success,
-      properties: properties,
-      measurements: measurements
-    }
-    |> create_payload("Request", tags, start_time)
-  end
-
   @spec(
     create_payload(
       data :: map(),

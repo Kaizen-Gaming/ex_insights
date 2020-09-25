@@ -34,11 +34,25 @@ defmodule ExInsights.Envelope do
   ```
   """
 
-  alias ExInsights.Telemetry.{Types, EventTelemetry, TraceTelemetry, ExceptionTelemetry}
+  alias ExInsights.Telemetry.{
+    Types,
+    EventTelemetry,
+    TraceTelemetry,
+    ExceptionTelemetry,
+    RequestTelemetry,
+    DependencyTelemetry,
+    MetricTelemetry
+  }
 
   @app_version Mix.Project.config()[:version]
 
-  @type telemetry :: EventTelemetry.t() | TraceTelemetry.t() | ExceptionTelemetry.t()
+  @type telemetry ::
+          EventTelemetry.t()
+          | TraceTelemetry.t()
+          | ExceptionTelemetry.t()
+          | RequestTelemetry.t()
+          | DependencyTelemetry.t()
+          | MetricTelemetry.t()
 
   @type t :: %__MODULE__{
           time: String.t(),

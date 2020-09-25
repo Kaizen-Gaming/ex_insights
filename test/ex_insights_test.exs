@@ -10,7 +10,8 @@ defmodule ExInsightsTest do
     TraceTelemetry,
     ExceptionTelemetry,
     MetricTelemetry,
-    DependencyTelemetry
+    DependencyTelemetry,
+    RequestTelemetry
   }
 
   import TestHelper, only: [to_envelope: 1]
@@ -90,19 +91,13 @@ defmodule ExInsightsTest do
 
     test "request" do
       envelope =
-        Payload.create_request_payload(
-          "homepage",
-          "http://my.site/",
-          "homeModule",
-          DateTime.utc_now(),
-          140,
-          200,
-          true,
-          %{},
-          %{foo: 2},
-          %{"ai.operation.id": "foo_id"},
-          "random_id"
+        RequestTelemetry.new("random_id", "homepage", "http://my.site/", "homeModule", 140, true,
+          response_code: 200,
+          properties: %{},
+          measurements: %{foo: 2},
+          tags: %{"ai.operation.id" => "foo_id"}
         )
+        |> to_envelope()
 
       assert %{
                name: "homepage",
@@ -114,8 +109,8 @@ defmodule ExInsightsTest do
              } = envelope.data.baseData
 
       assert %{
-               "ai.operation.id": "foo_id",
-               "ai.internal.sdkVersion": _
+               "ai.operation.id" => "foo_id",
+               "ai.internal.sdkVersion" => _
              } = envelope.tags
 
       assert_envelope_basics("Request", envelope)
@@ -126,7 +121,14 @@ defmodule ExInsightsTest do
   describe "json test with js sdk" do
     test "trace" do
       json = File.read!("test/assets/track_trace.json") |> Poison.decode!()
-      envelope = Payload.create_trace_payload("this is a test", :critical, %{"foo" => "bar"}, %{})
+
+      envelope =
+        TraceTelemetry.new("this is a test",
+          severity_level: :critical,
+          properties: %{"foo" => "bar"}
+        )
+        |> to_envelope()
+
       assert envelope.data.baseData.message == json["data"]["baseData"]["message"]
       assert envelope.data.baseData.properties == json["data"]["baseData"]["properties"]
       assert envelope.data.baseData.severityLevel == json["data"]["baseData"]["severityLevel"]
