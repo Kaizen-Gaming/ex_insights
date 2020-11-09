@@ -54,10 +54,12 @@ defmodule ExInsights.Envelope do
           | DependencyTelemetry.t()
           | MetricTelemetry.t()
 
+  @type missing_key :: {:error, :missing_instrumentation_key}
+
   @type t :: %__MODULE__{
           time: String.t(),
           name: String.t(),
-          iKey: String.t(),
+          iKey: String.t() | missing_key(),
           tags: Types.tags(),
           data: map()
         }
@@ -70,14 +72,14 @@ defmodule ExInsights.Envelope do
     :data
   ]
 
-  @spec wrap(telemetry :: telemetry(), Types.instrumentation_key()) :: t()
+  @spec wrap(telemetry :: telemetry(), Types.instrumentation_key() | nil) :: t()
   def wrap(%{} = telemetry, instrumentation_key) do
     type = telemetry.common.type
 
     %__MODULE__{
       time: time(telemetry.common.time),
       tags: merge_tags(telemetry.common.tags),
-      iKey: instrumentation_key,
+      iKey: store_instrumentation_key(instrumentation_key),
       name: name(type, instrumentation_key),
       data: %{
         baseType: "#{type}Data",
@@ -92,11 +94,32 @@ defmodule ExInsights.Envelope do
       "ai.internal.sdkVersion" => "elixir:#{@app_version}"
     }
 
+  @spec instrumentation_key_set?(t()) :: boolean()
+  def instrumentation_key_set?(envelope)
+  def instrumentation_key_set?(%__MODULE__{iKey: key}) when is_binary(key), do: true
+  def instrumentation_key_set?(%__MODULE__{}), do: false
+
+  @spec set_instrumentation_key(t(), Types.instrumentation_key()) :: t()
+  def set_instrumentation_key(envelope, key)
+
+  def set_instrumentation_key(
+        %__MODULE_{iKey: {:error, :missing_instrumentation_key}} = envelope,
+        instrumentation_key
+      )
+      when is_binary(instrumentation_key) do
+    %{envelope | iKey: instrumentation_key, name: name(envelope.name, instrumentation_key)}
+  end
+
+  def set_instrumentation_key(%__MODULE__{} = envelope), do: envelope
+
   @spec time(DateTime.t()) :: String.t()
   defp time(%DateTime{} = time), do: DateTime.to_iso8601(time)
 
+  @spec name(String.t(), nil) :: String.t()
+  defp name(type, nil), do: type
+
   @spec name(String.t(), String.t()) :: String.t()
-  defp name(type, instrumentation_key),
+  defp name(type, instrumentation_key) when is_binary(instrumentation_key),
     do: "Microsoft.ApplicationInsights.#{String.replace(instrumentation_key, "-", "")}.#{type}"
 
   @spec merge_tags(Types.tags() | nil) :: Types.tags()
@@ -114,4 +137,10 @@ defmodule ExInsights.Envelope do
     |> Map.delete(:common)
     |> Map.merge(extra)
   end
+
+  @spec store_instrumentation_key(Types.instrumentation_key() | nil) ::
+          Types.instrumentation_key() | missing_key()
+  defp store_instrumentation_key(key)
+  defp store_instrumentation_key(nil), do: {:error, :missing_instrumentation_key}
+  defp store_instrumentation_key(key) when is_binary(key), do: key
 end

@@ -274,17 +274,15 @@ defmodule ExInsights do
   end
 
   # when instrumentation_key is not explicitly set by the caller (default is nil)
-  # the wraping into an envelope will happen inside the `ExInsights.Aggregation.Worker`
-  # providing the instrumentation key at that last moment from the initial setup defaults
+  # the wrapping into an envelope will happen here but the instrumentation key
+  # will be later set inside the `ExInsights.Aggregation.Worker` using the startup args
 
   @spec track(Envelope.telemetry(), instrumentation_key()) :: :ok
   defp track(telemetry, instrumentation_key)
 
-  defp track(telemetry, instrumentation_key) when is_binary(instrumentation_key) do
+  defp track(telemetry, instrumentation_key) do
     telemetry
     |> Envelope.wrap(instrumentation_key)
     |> ExInsights.Aggregation.Worker.track()
   end
-
-  defp track(telemetry, _), do: ExInsights.Aggregation.Worker.track(telemetry)
 end
