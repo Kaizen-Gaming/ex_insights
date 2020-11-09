@@ -22,7 +22,7 @@ defmodule ExInsights.Telemetry.DependencyTelemetry do
   * `:success`: True if remote call was successful, false otherwise (boolean)
   """
   @type t() :: %__MODULE__{
-          id: String.t(),
+          id: binary(),
           name: Types.name(),
           dependencyTypeName: Types.name(),
           target: String.t(),
@@ -55,7 +55,7 @@ defmodule ExInsights.Telemetry.DependencyTelemetry do
 
   @spec new(
           name :: Types.name(),
-          id :: String.t(),
+          id :: binary(),
           duration :: Types.millisecond(),
           success? :: boolean(),
           options :: [option]

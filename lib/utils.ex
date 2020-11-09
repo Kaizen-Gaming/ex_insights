@@ -169,4 +169,7 @@ defmodule ExInsights.Utils do
         end
     end
   end
+
+  @spec generate_id() :: binary()
+  def generate_id(), do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>)
 end

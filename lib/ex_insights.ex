@@ -4,45 +4,19 @@ defmodule ExInsights do
   For more information on initialization and usage consult the [README.md](readme.html)
   """
 
-  alias ExInsights.Configuration, as: Conf
-  alias ExInsights.Data.{Envelope, Payload}
+  alias ExInsights.{Envelope, Utils}
 
-  @typedoc """
-  Measurement name. Will be used extensively in the app insights UI
-  """
-  @type name :: String.t() | atom
+  alias ExInsights.Telemetry.{
+    Types,
+    EventTelemetry,
+    TraceTelemetry,
+    ExceptionTelemetry,
+    MetricTelemetry,
+    DependencyTelemetry,
+    RequestTelemetry
+  }
 
-  @typedoc ~S"""
-  A map of `[name -> string]` to add metadata to a tracking request
-  """
-  @type properties :: %{optional(name) => String.t()}
-
-  @typedoc ~S"""
-  A map of `[name -> number]` to add measurement data to a tracking request
-  """
-  @type measurements :: %{optional(name) => number}
-
-  @typedoc ~S"""
-  A map of `[name -> string]` to add tags metadata to a tracking request
-  """
-  @type tags :: %{optional(name) => String.t()}
-
-  @typedoc ~S"""
-  Defines the level of severity for the event.
-  """
-  @type severity_level :: :verbose | :info | :warning | :error | :critical
-
-  @typedoc ~S"""
-  Represents the exception's stack trace.
-  """
-  @type stack_trace :: [stack_trace_entry]
-  @type stack_trace_entry ::
-          {module, atom, arity_or_args, location}
-          | {(... -> any), arity_or_args, location}
-  @type instrumentation_key :: String.t() | nil
-
-  @typep arity_or_args :: non_neg_integer | list
-  @typep location :: keyword
+  @type instrumentation_key :: Types.instrumentation_key() | nil
 
   @doc ~S"""
   Log a user action or other occurrence.
@@ -50,18 +24,18 @@ defmodule ExInsights do
   ### Parameters:
 
   ```
-  name: name of the event (string)
+  name: name of the event (string or atom)
   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
   ```
   """
   @spec track_event(
-          name :: name,
-          properties :: properties,
-          measurements :: measurements,
-          tags :: tags,
+          name :: Types.name(),
+          properties :: Types.properties(),
+          measurements :: Types.measurements(),
+          tags :: Types.tags(),
           instrumentation_key :: instrumentation_key
         ) :: :ok
   def track_event(
@@ -70,9 +44,9 @@ defmodule ExInsights do
         measurements \\ %{},
         tags \\ %{},
         instrumentation_key \\ nil
-      )
-      when is_binary(name) do
-    Payload.create_event_payload(name, properties, measurements, tags)
+      ) do
+    name
+    |> EventTelemetry.new(properties: properties, measurements: measurements, tags: tags)
     |> track(instrumentation_key)
   end
 
@@ -86,14 +60,14 @@ defmodule ExInsights do
   severity_level: The level of severity for the event.
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
   ```
   """
   @spec track_trace(
           String.t(),
-          severity_level :: severity_level,
-          properties :: properties,
-          tags :: tags,
+          severity_level :: Types.severity_level(),
+          properties :: Types.properties(),
+          tags :: Types.tags(),
           instrumentation_key :: instrumentation_key
         ) :: :ok
   def track_trace(
@@ -103,7 +77,8 @@ defmodule ExInsights do
         tags \\ %{},
         instrumentation_key \\ nil
       ) do
-    Payload.create_trace_payload(message, severity_level, properties, tags)
+    message
+    |> TraceTelemetry.new(severity_level: severity_level, properties: properties, tags: tags)
     |> track(instrumentation_key)
   end
 
@@ -118,34 +93,34 @@ defmodule ExInsights do
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
   ```
   """
   @spec track_exception(
-          String.t(),
-          stack_trace :: stack_trace,
+          Exception.t() | String.t(),
+          stack_trace :: Exception.stacktrace(),
           String.t() | nil,
-          properties :: properties,
-          measurements :: measurements,
-          tags :: tags,
+          properties :: Types.properties(),
+          measurements :: Types.measurements(),
+          tags :: Types.tags(),
           instrumentation_key :: instrumentation_key
         ) :: :ok
   def track_exception(
         exception,
         stack_trace,
-        handle_at \\ nil,
+        handled_at \\ nil,
         properties \\ %{},
         measurements \\ %{},
         tags \\ %{},
         instrumentation_key \\ nil
       ) do
-    Payload.create_exception_payload(
-      exception,
-      stack_trace,
-      handle_at,
-      properties,
-      measurements,
-      tags
+    exception
+    |> ExceptionTelemetry.new(
+      stack_trace: stack_trace,
+      handled_at: handled_at,
+      properties: properties,
+      measurements: measurements,
+      tags: tags
     )
     |> track(instrumentation_key)
   end
@@ -162,19 +137,19 @@ defmodule ExInsights do
   value: the value of the metric (number)
   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
   ```
   """
   @spec track_metric(
-          name :: name,
-          number,
-          properties :: properties,
-          tags :: tags,
+          name :: Types.name(),
+          value :: number(),
+          properties :: Types.properties(),
+          tags :: Types.tags(),
           instrumentation_key :: instrumentation_key
         ) :: :ok
-  def track_metric(name, value, properties \\ %{}, tags \\ %{}, instrumentation_key \\ nil)
-      when is_binary(name) do
-    Payload.create_metric_payload(name, value, properties, tags)
+  def track_metric(name, value, properties \\ %{}, tags \\ %{}, instrumentation_key \\ nil) do
+    name
+    |> MetricTelemetry.new(value, properties: properties, tags: tags)
     |> track(instrumentation_key)
   end
 
@@ -185,38 +160,38 @@ defmodule ExInsights do
 
   ```
   name: String that identifies the dependency.
-  command_name: String of the name of the command made against the dependency (eg. full URL with querystring or SQL command text).
+  data: String of the name of the command made against the dependency (eg. full URL with querystring or SQL command text).
   start_time: The datetime when the dependency call was initiated.
-  elapsed_time_ms: Number for elapsed time in milliseconds of the command made against the dependency.
-  success: Boolean which indicates success.
-  dependency_type_name: String which denotes dependency type. Defaults to nil.
+  duration: Remote call duration in ms (non-neg integer)
+  success?: True if remote call was successful, false otherwise (boolean).
+  dependency_type_name: Type name of the telemetry, such as HTTP or SQL (string).
   target: String of the target host of the dependency.
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   id (optional): a unique identifier representing the dependency call.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
   ```
   """
 
   @spec track_dependency(
-          name :: name,
-          String.t(),
-          DateTime.t(),
-          number,
-          boolean,
+          name :: Types.name(),
+          data :: String.t(),
+          start_time :: DateTime.t(),
+          Types.millisecond(),
+          boolean(),
           String.t(),
           String.t() | nil,
-          properties :: properties,
-          id :: String.t() | nil,
-          tags :: tags,
+          properties :: Types.properties(),
+          id :: binary() | nil,
+          tags :: Types.tags(),
           instrumentation_key :: instrumentation_key
         ) :: :ok
   def track_dependency(
         name,
-        command_name,
+        data,
         start_time,
-        elapsed_time_ms,
-        success,
+        duration,
+        success?,
         dependency_type_name \\ "",
         target \\ nil,
         properties \\ %{},
@@ -224,25 +199,22 @@ defmodule ExInsights do
         tags \\ %{},
         instrumentation_key \\ nil
       ) do
-    id = if id == nil, do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
+    id = if id == nil, do: Utils.generate_id(), else: id
 
-    Payload.create_dependency_payload(
-      name,
-      command_name,
-      start_time,
-      elapsed_time_ms,
-      success,
-      dependency_type_name,
-      target,
-      properties,
-      tags,
-      id
+    name
+    |> DependencyTelemetry.new(id, duration, success?,
+      dependency_type_name: dependency_type_name,
+      data: data,
+      time: start_time,
+      target: target,
+      properties: properties,
+      tags: tags
     )
     |> track(instrumentation_key)
   end
 
   @doc ~S"""
-  Log a request, for example incoming HTTP requests
+  Log an _incoming_ request, for example incoming HTTP requests
 
   ### Parameters:
 
@@ -252,28 +224,28 @@ defmodule ExInsights do
   source: Request Source. Encapsulates info about the component that initiated the request (can be nil)
   start_time: The datetime when the request was initiated.
   elapsed_time_ms: Number for elapsed time in milliseconds
-  result_code: Result code reported by the application
-  success: whether the request was successfull
+  response_code: Result code reported by the application
+  success?: whether the request was successfull
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   id (optional): a unique identifier representing the request.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will be read from the configuration (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
   ```
   """
   @spec track_request(
-          name :: name,
+          name :: Types.name(),
           url :: String.t(),
           source :: String.t() | nil,
           start_time :: DateTime.t(),
-          elapsed_time_ms :: number,
-          result_code :: String.t() | number,
-          success :: boolean,
-          properties :: properties,
-          measurements :: measurements,
-          id :: String.t() | nil,
-          tags :: tags,
-          instrumentation_key :: instrumentation_key
+          elapsed_time_ms :: Types.millisecond(),
+          response_code :: String.t() | number(),
+          success? :: boolean(),
+          properties :: Types.properties(),
+          measurements :: Types.measurements(),
+          id :: binary() | nil,
+          tags :: Types.tags(),
+          instrumentation_key :: instrumentation_key()
         ) ::
           :ok
   def track_request(
@@ -282,44 +254,37 @@ defmodule ExInsights do
         source,
         start_time,
         elapsed_time_ms,
-        result_code,
-        success,
+        response_code,
+        success?,
         properties \\ %{},
         measurements \\ %{},
         id \\ nil,
         tags \\ %{},
         instrumentation_key \\ nil
       ) do
-    id = if id == nil, do: Base.encode16(<<:rand.uniform(438_964_124)::size(32)>>), else: id
-
-    Payload.create_request_payload(
-      name,
-      url,
-      source,
-      start_time,
-      elapsed_time_ms,
-      result_code,
-      success,
-      properties,
-      measurements,
-      tags,
-      id
+    (id || Utils.generate_id())
+    |> RequestTelemetry.new(name, url, source, elapsed_time_ms, success?,
+      time: start_time,
+      response_code: response_code,
+      measurements: measurements,
+      properties: properties,
+      tags: tags
     )
     |> track(instrumentation_key)
   end
 
-  @spec track(map, instrumentation_key()) :: :ok
-  defp track(%Envelope{} = payload, instrumentation_key) do
-    key = read_instrumentation_key(instrumentation_key)
+  # when instrumentation_key is not explicitly set by the caller (default is nil)
+  # the wraping into an envelope will happen inside the `ExInsights.Aggregation.Worker`
+  # providing the instrumentation key at that last moment from the initial setup defaults
 
-    payload
-    |> Envelope.set_instrumentation_key(key)
-    |> Envelope.ensure_instrumentation_key_present()
+  @spec track(Envelope.telemetry(), instrumentation_key()) :: :ok
+  defp track(telemetry, instrumentation_key)
+
+  defp track(telemetry, instrumentation_key) when is_binary(instrumentation_key) do
+    telemetry
+    |> Envelope.wrap(instrumentation_key)
     |> ExInsights.Aggregation.Worker.track()
-
-    :ok
   end
 
-  def read_instrumentation_key(key) when is_binary(key) and byte_size(key) > 0, do: key
-  def read_instrumentation_key(_), do: Conf.get_value(:instrumentation_key)
+  defp track(telemetry, _), do: ExInsights.Aggregation.Worker.track(telemetry)
 end

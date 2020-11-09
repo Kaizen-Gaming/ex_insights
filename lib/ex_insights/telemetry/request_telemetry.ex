@@ -16,7 +16,7 @@ defmodule ExInsights.Telemetry.RequestTelemetry do
   Telemetry about the incoming request processsed by the application
 
   * `:id`: id of incoming request (string)
-  * `:name`: Request name (string)
+  * `:name`: Request name (string or atom)
   * `:url`: Request url (string)
   * `:source`: Request source. This encapsulates the information about the component that initiated the request (string)
   * `:duration`: Request processing time in ms (non-neg integer)
@@ -26,7 +26,7 @@ defmodule ExInsights.Telemetry.RequestTelemetry do
   * `:common`: Properties shared by all Telemetry types. See `ExInsights.Telemetry.CommonTelemetry` for more info.
   """
   @type t() :: %__MODULE__{
-          id: String.t(),
+          id: binary(),
           url: String.t(),
           name: Types.name(),
           source: String.t(),
@@ -56,8 +56,8 @@ defmodule ExInsights.Telemetry.RequestTelemetry do
   ]
 
   @spec new(
-          id :: String.t(),
-          name :: String.t(),
+          id :: binary(),
+          name :: Types.name(),
           url :: String.t(),
           source :: String.t(),
           duration :: Types.millisecond(),
