@@ -106,10 +106,10 @@ defmodule ExInsights.Worker do
   defp raise_error(key) do
     raise("""
     Azure app insights instrumentation key not set (value was: #{key})!
-    1) First get your key as described in the docs https://docs.microsoft.com/en-us/azure/application-insights/app-insights-cloudservices
+    1) First get your key as described in the docs https://docs.microsoft.com/en-us/azure/azure-monitor/app/cloudservices#create-an-application-insights-resource-for-each-role
     2) Then set it either
-      a) as a parameter given to the supervision tree start (see README.MD) OR
-      c) as a paremeter along with each request, ie: ExInsights.track_event(..., instrumentation_key)
+      a) during initialization of the `ExInsights.Supervisor` (see README.MD) OR
+      b) as a paremeter along with each request, ie: ExInsights.track_event(..., instrumentation_key)
     """)
   end
 end
