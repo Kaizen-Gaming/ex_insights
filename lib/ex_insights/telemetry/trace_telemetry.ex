@@ -15,6 +15,7 @@ defmodule ExInsights.Telemetry.TraceTelemetry do
 
   @type option :: {:severity_level, Types.severity_level()} | CommonTelemetry.option()
 
+  @derive Jason.Encoder
   @enforce_keys [:message]
   defstruct [
     :message,

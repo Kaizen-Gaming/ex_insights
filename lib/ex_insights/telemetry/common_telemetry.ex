@@ -17,6 +17,7 @@ defmodule ExInsights.Telemetry.CommonTelemetry do
   @type option ::
           {:time, DateTime.t()} | {:properties, Types.properties()} | {:tags, Types.tags()}
 
+  @derive Jason.Encoder
   @enforce_keys [:type]
   defstruct [
     :time,

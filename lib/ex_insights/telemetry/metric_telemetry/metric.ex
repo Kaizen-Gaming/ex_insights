@@ -15,6 +15,7 @@ defmodule ExInsights.Telemetry.MetricTelemetry.Metric do
           kind: kind()
         }
 
+  @derive Jason.Encoder
   @enforce_keys [:name, :value, :kind]
   defstruct [
     :name,

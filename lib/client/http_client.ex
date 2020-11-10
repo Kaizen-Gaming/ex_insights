@@ -13,7 +13,7 @@ defmodule ExInsights.Client.HttpClient do
   @impl true
   @spec track([ExInsights.Envelope.t()]) :: {:error, map} | {:ok, map}
   def track(items) when is_list(items) do
-    payload = Poison.encode!(items, iodata: true)
+    payload = Jason.encode_to_iodata!(items, iodata: true)
     HTTPoison.post(@service_url, payload, %{"Content-Type" => "application/json"})
   end
 end

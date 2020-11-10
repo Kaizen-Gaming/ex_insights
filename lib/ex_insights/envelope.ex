@@ -64,6 +64,7 @@ defmodule ExInsights.Envelope do
           data: map()
         }
 
+  @derive Jason.Encoder
   defstruct [
     :time,
     :name,

@@ -2,8 +2,7 @@ defmodule ExInsightsTest do
   use ExUnit.Case, async: true
   doctest ExInsights
 
-  alias ExInsights.Data.Payload
-  alias ExInsights.TestHelper
+  alias ExInsights.{Envelope, TestHelper}
 
   alias ExInsights.Telemetry.{
     EventTelemetry,
@@ -14,7 +13,7 @@ defmodule ExInsightsTest do
     RequestTelemetry
   }
 
-  import TestHelper, only: [to_envelope: 1]
+  import TestHelper, only: [to_envelope: 1, get_test_key: 0]
 
   describe "envelope:" do
     test "event" do
@@ -120,7 +119,7 @@ defmodule ExInsightsTest do
 
   describe "json test with js sdk" do
     test "trace" do
-      json = File.read!("test/assets/track_trace.json") |> Poison.decode!()
+      json = File.read!("test/assets/track_trace.json") |> Jason.decode!()
 
       envelope =
         TraceTelemetry.new("this is a test",
@@ -135,7 +134,7 @@ defmodule ExInsightsTest do
     end
 
     test "exception" do
-      json = File.read!("test/assets/track_exception.json") |> Poison.decode!()
+      json = File.read!("test/assets/track_exception.json") |> Jason.decode!()
       exception = %{__exception__: true, __struct__: Error, message: "error"}
 
       stack_trace = [
@@ -167,6 +166,17 @@ defmodule ExInsightsTest do
       assert envelope.data.baseData.properties == json["data"]["baseData"]["properties"]
       assert envelope.data.baseData.measurements == json["data"]["baseData"]["measurements"]
     end
+
+    test "serialization fails when instrumentation_key missing" do
+      envelope =
+        "something happened"
+        |> EventTelemetry.new()
+        |> Envelope.wrap(nil)
+
+      assert_raise Protocol.UndefinedError,
+                   ~r/not implemented for {:error, :missing_instrumentation_key}/,
+                   fn -> Jason.encode!(envelope) end
+    end
   end
 
   defp assert_envelope_basics(kind, envelope) do
@@ -174,6 +184,7 @@ defmodule ExInsightsTest do
     assert envelope.name |> String.ends_with?(kind)
     assert envelope.data.baseData.ver == 2
     assert envelope.time != nil
-    assert envelope.iKey == ExInsights.TestHelper.get_test_key()
+    assert envelope.iKey == get_test_key()
+    assert is_binary(Jason.encode!(envelope))
   end
 end

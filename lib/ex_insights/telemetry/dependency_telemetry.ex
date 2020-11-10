@@ -40,6 +40,7 @@ defmodule ExInsights.Telemetry.DependencyTelemetry do
           | {:result_code, String.t() | number()}
           | CommonTelemetry.option()
 
+  @derive Jason.Encoder
   @enforce_keys [:name, :id, :dependencyTypeName, :success]
   defstruct [
     :dependencyTypeName,

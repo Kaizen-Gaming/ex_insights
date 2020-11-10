@@ -19,7 +19,7 @@ end
 You then need to start the `ExInsights.Supervisor` in your supervision tree. Example:
 
 ```elixir
-# inside the init/1 of some supervisor in your supervision tree (or application.ex)
+# inside the init/1 callback of a supervisor in your supervision tree (or start/2 of application.ex)
 
 children = [
   # ...
@@ -109,16 +109,16 @@ end
 ```
 
 ## Migrating from 0.7.x to 0.8.x
-In order to make configuring the client more flexible and in accordance to [library development guidelines for configuration](https://hexdocs.pm/elixir/master/library-guidelines.html#avoid-application-configuration), support for configuring the client by setting options directly inside config.exs files was dropped and configuration now needs to happen on supervisor startup.
+In order to make configuration of the client more flexible and in accordance to [library development guidelines for configuration](https://hexdocs.pm/elixir/master/library-guidelines.html#avoid-application-configuration), support for configuring the client by setting options directly inside config.exs files was dropped and configuration now needs to happen on supervisor startup.
 
-For example instead of simply doing this inside config.exs
+For example instead of globally configuring ex_insights inside config.exs,
 ```elixir
 # No longer supported
 config :ex_insights,
   instrumentation_key: "0000-1111-2222-3333"
 ```
 
-You now need to pass this option to the `ExInsights.Supervisor` directly instead
+you now need to pass this option to the `ExInsights.Supervisor` directly instead
 ```elixir
 children = [
   ...

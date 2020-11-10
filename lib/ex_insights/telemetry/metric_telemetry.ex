@@ -13,6 +13,7 @@ defmodule ExInsights.Telemetry.MetricTelemetry do
 
   @type option :: CommonTelemetry.option()
 
+  @derive Jason.Encoder
   @enforce_keys [:metrics]
   defstruct [
     :metrics,

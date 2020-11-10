@@ -39,6 +39,7 @@ defmodule ExInsights.Telemetry.ExceptionTelemetry do
           | {:measurements, Types.measurements()}
           | CommonTelemetry.option()
 
+  @derive Jason.Encoder
   @enforce_keys [:exceptions, :handledAt, :severityLevel]
   defstruct [
     :handledAt,

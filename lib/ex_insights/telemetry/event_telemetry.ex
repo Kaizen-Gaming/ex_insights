@@ -13,6 +13,7 @@ defmodule ExInsights.Telemetry.EventTelemetry do
 
   @type option :: {:measurements, Types.measurements()} | CommonTelemetry.option()
 
+  @derive Jason.Encoder
   @enforce_keys [:name]
   defstruct [
     :name,

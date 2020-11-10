@@ -42,6 +42,7 @@ defmodule ExInsights.Telemetry.RequestTelemetry do
           | {:measurements, Types.measurements()}
           | CommonTelemetry.option()
 
+  @derive Jason.Encoder
   @enforce_keys [:id, :name, :url, :success]
   defstruct [
     :id,
