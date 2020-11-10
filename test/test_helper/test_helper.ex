@@ -5,12 +5,17 @@ defmodule ExInsights.TestHelper do
 
   defmacro setup_test_client do
     quote do
-      @client ExInsights.Client.TestClient
+      @client ExInsights.Test.Client.TestClient
       setup_all do
         import ExInsights.TestHelper
-        # substitute real http client for mock
-        Application.put_env(:ex_insights, :client_module, @client)
-        Application.put_env(:ex_insights, :flush_interval_secs, 1)
+
+        {:ok, pid} =
+          ExInsights.Aggregation.Worker.start_link(
+            flush_interval_secs: 1,
+            client_module: @client,
+            instrumentation_key: get_test_key()
+          )
+
         @client.start()
         :ok
       end

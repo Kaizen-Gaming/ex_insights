@@ -1,4 +1,4 @@
-defmodule ExInsights.Client.TestClient do
+defmodule ExInsights.Test.Client.TestClient do
   @moduledoc """
     Test client module that implements the `ExInsights.Client.ClientBehaviour`
 
@@ -8,18 +8,19 @@ defmodule ExInsights.Client.TestClient do
   @name __MODULE__
 
   use GenServer
-  @behaviour ExInsights.Client.ClientBehaviour
+  alias ExInsights.Client.ClientBehaviour
+  @behaviour ClientBehaviour
 
   def start() do
     GenServer.start(@name, [], name: @name)
   end
 
-  @impl true
+  @impl GenServer
   def init(init_arg) do
     {:ok, init_arg}
   end
 
-  @impl true
+  @impl ClientBehaviour
   def track(items) do
     GenServer.call(@name, {:track, items})
   end
@@ -33,7 +34,7 @@ defmodule ExInsights.Client.TestClient do
     GenServer.call(@name, :clear_listeners)
   end
 
-  @impl true
+  @impl GenServer
   def handle_call({:track, items}, _from, listeners) do
     for listener <- listeners do
       send(listener, {:items_sent, items})
@@ -42,12 +43,12 @@ defmodule ExInsights.Client.TestClient do
     {:reply, :ok, listeners}
   end
 
-  @impl true
+  @impl GenServer
   def handle_call({:add_listener, pid}, _from, listeners) do
     {:reply, :ok, [pid | listeners]}
   end
 
-  @impl true
+  @impl GenServer
   def handle_call(:clear_listeners, _from, _) do
     {:reply, :ok, []}
   end

@@ -100,17 +100,13 @@ defmodule ExInsights.Envelope do
   def instrumentation_key_set?(%__MODULE__{}), do: false
 
   @spec set_instrumentation_key(t(), Types.instrumentation_key()) :: t()
-  def set_instrumentation_key(envelope, key)
-
   def set_instrumentation_key(
-        %__MODULE_{iKey: {:error, :missing_instrumentation_key}} = envelope,
+        %__MODULE__{iKey: {:error, :missing_instrumentation_key}} = envelope,
         instrumentation_key
       )
       when is_binary(instrumentation_key) do
     %{envelope | iKey: instrumentation_key, name: name(envelope.name, instrumentation_key)}
   end
-
-  def set_instrumentation_key(%__MODULE__{} = envelope), do: envelope
 
   @spec time(DateTime.t()) :: String.t()
   defp time(%DateTime{} = time), do: DateTime.to_iso8601(time)

@@ -1,19 +1,22 @@
 defmodule ExInsights.Aggregation.Supervisor do
-  @moduledoc false
+  @moduledoc """
+  Starts the `ExInsights.Aggregation.Worker` for uploading telemetry to Azure
+  """
 
   use Supervisor
+  alias ExInsights.Aggregation.Worker
 
   @name __MODULE__
-  @worker ExInsights.Aggregation.Worker
 
-  def start_link(_) do
-    Supervisor.start_link(@name, [], name: @name)
+  @spec start_link([Worker.option()]) :: Supervisor.on_start()
+  def start_link(options) do
+    Supervisor.start_link(@name, options, name: @name)
   end
 
-  def init(_) do
+  def init(options) do
     Supervisor.init(
       [
-        @worker
+        {Worker, options}
       ],
       strategy: :one_for_one
     )

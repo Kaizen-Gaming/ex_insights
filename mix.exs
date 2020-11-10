@@ -18,7 +18,7 @@ defmodule ExInsights.Mixfile do
   end
 
   def elixirc_paths(:test) do
-    ["lib", "test/test_helper"]
+    ["lib", "test/test_helper", "test/client"]
   end
 
   def elixirc_paths(_) do
@@ -26,9 +26,7 @@ defmodule ExInsights.Mixfile do
   end
 
   def application do
-    [
-      mod: {ExInsights.Application, []}
-    ]
+    []
   end
 
   defp deps do

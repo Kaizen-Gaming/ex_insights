@@ -2,7 +2,7 @@ defmodule ExInsightsTest do
   use ExUnit.Case, async: true
   doctest ExInsights
 
-  alias ExInsights.Data.{Envelope, Payload}
+  alias ExInsights.Data.Payload
   alias ExInsights.TestHelper
 
   alias ExInsights.Telemetry.{

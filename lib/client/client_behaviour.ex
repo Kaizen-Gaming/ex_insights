@@ -8,5 +8,5 @@ defmodule ExInsights.Client.ClientBehaviour do
   @doc """
   Invoked to send telemetry data to azure
   """
-  @callback track(list(map)) :: {:error, any} | {:ok, any}
+  @callback track([ExInsights.Envelope.t()]) :: {:error, any} | {:ok, any}
 end
