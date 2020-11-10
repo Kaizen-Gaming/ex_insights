@@ -1,7 +1,7 @@
 defmodule ExInsights do
   @moduledoc """
-  Exposes methods for POST events & metrics to Azure Application Insights.
-  For more information on initialization and usage consult the [README.md](readme.html)
+    Exposes methods for POST events & metrics to Azure Application Insights.
+    For more information on initialization and usage consult the [README.md](readme.html)
   """
 
   alias ExInsights.{Envelope, Utils}
@@ -16,20 +16,23 @@ defmodule ExInsights do
     RequestTelemetry
   }
 
+  @typedoc """
+    Azure application insights instrumentation key (string) or nil
+  """
   @type instrumentation_key :: Types.instrumentation_key() | nil
 
   @doc ~S"""
-  Log a user action or other occurrence.
+    Log a user action or other occurrence.
 
-  ### Parameters:
+    `name`: name of the event (string or atom)
 
-  ```
-  name: name of the event (string or atom)
-  properties (optional): a map of [string -> string] pairs for adding extra properties to this event
-  measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
-  tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
-  ```
+    `properties` (optional): a map of [string -> string] pairs for adding extra properties to this event
+
+    `measurements` (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
+
+    `tags` (optional): map[string, string] - additional application insights tag metadata.
+
+    `instrumentation_key` (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   """
   @spec track_event(
           name :: Types.name(),
@@ -51,17 +54,17 @@ defmodule ExInsights do
   end
 
   @doc ~S"""
-  Log a trace message.
+    Log a trace message.
 
-  ### Parameters:
+    `message`: A string to identify this event in the portal.
 
-  ```
-  message: A string to identify this event in the portal.
-  severity_level: The level of severity for the event.
-  properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
-  tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
-  ```
+    `severity_level`: The level of severity for the event.
+
+    `properties`: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+
+    `tags` (optional): map[string, string] - additional application insights tag metadata.
+
+    `instrumentation_key` (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   """
   @spec track_trace(
           String.t(),
@@ -83,18 +86,19 @@ defmodule ExInsights do
   end
 
   @doc ~S"""
-  Log an exception you have caught.
+    Log an exception you have caught.
 
-  ### Parameters:
+    `exception`: An Error from a catch clause, or the string error message.
 
-  ```
-  exception: An Error from a catch clause, or the string error message.
-  stack_trace: An erlang stacktrace.
-  properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
-  measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
-  tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
-  ```
+    `stack_trace`: An erlang stacktrace.
+
+    `properties`: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+
+    `measurements`: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
+
+    `tags` (optional): map[string, string] - additional application insights tag metadata.
+
+    `instrumentation_key` (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   """
   @spec track_exception(
           Exception.t() | String.t(),
@@ -126,19 +130,19 @@ defmodule ExInsights do
   end
 
   @doc ~S"""
-  Log a numeric value that is not associated with a specific event.
+    Log a numeric value that is not associated with a specific event.
 
-  Typically used to send regular reports of performance indicators.
+    Typically used to send regular reports of performance indicators.
 
-  ### Parameters:
+    `name`: name of the metric
 
-  ```
-  name: name of the metric
-  value: the value of the metric (number)
-  properties (optional): a map of [string -> string] pairs for adding extra properties to this event
-  tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
-  ```
+    `value`: the value of the metric (number)
+
+    `properties` (optional): a map of [string -> string] pairs for adding extra properties to this event
+
+    `tags` (optional): map[string, string] - additional application insights tag metadata.
+
+    `instrumentation_key` (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   """
   @spec track_metric(
           name :: Types.name(),
@@ -154,23 +158,29 @@ defmodule ExInsights do
   end
 
   @doc ~S"""
-  Log a dependency, for example requests to an external service or SQL calls.
+    Log a dependency, for example requests to an external service or SQL calls.
 
-  ### Parameters:
+    `name`: String that identifies the dependency.
 
-  ```
-  name: String that identifies the dependency.
-  data: String of the name of the command made against the dependency (eg. full URL with querystring or SQL command text).
-  start_time: The datetime when the dependency call was initiated.
-  duration: Remote call duration in ms (non-neg integer)
-  success?: True if remote call was successful, false otherwise (boolean).
-  dependency_type_name: Type name of the telemetry, such as HTTP or SQL (string).
-  target: String of the target host of the dependency.
-  properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
-  id (optional): a unique identifier representing the dependency call.
-  tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
-  ```
+    `data`: String of the name of the command made against the dependency (eg. full URL with querystring or SQL command text).
+
+    `start_time`: The datetime when the dependency call was initiated.
+
+    `duration`: Remote call duration in ms (non-neg integer)
+
+    `success?`: True if remote call was successful, false otherwise (boolean).
+
+    `dependency_type_name`: Type name of the telemetry, such as HTTP or SQL (string).
+
+    `target`: String of the target host of the dependency.
+
+    `properties` (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+
+    `id` (optional): a unique identifier representing the dependency call.
+
+    `tags` (optional): map[string, string] - additional application insights tag metadata.
+
+    `instrumentation_key` (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   """
 
   @spec track_dependency(
@@ -214,24 +224,31 @@ defmodule ExInsights do
   end
 
   @doc ~S"""
-  Log an _incoming_ request, for example incoming HTTP requests
+    Log an _incoming_ request, for example incoming HTTP requests
 
-  ### Parameters:
+    `name`: String that identifies the request
 
-  ```
-  name: String that identifies the request
-  url: Request URL
-  source: Request Source. Encapsulates info about the component that initiated the request (can be nil)
-  start_time: The datetime when the request was initiated.
-  elapsed_time_ms: Number for elapsed time in milliseconds
-  response_code: Result code reported by the application
-  success?: whether the request was successfull
-  properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
-  measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
-  id (optional): a unique identifier representing the request.
-  tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
-  ```
+    `url`: Request URL
+
+    `source`: Request Source. Encapsulates info about the component that initiated the request (can be nil)
+
+    `start_time`: The datetime when the request was initiated.
+
+    `elapsed_time_ms`: Number for elapsed time in milliseconds
+
+    `response_code`: Result code reported by the application
+
+    `success?`: whether the request was successfull
+
+    `properties` (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
+
+    `measurements` (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
+
+    `id` (optional): a unique identifier representing the request.
+
+    `tags` (optional): map[string, string] - additional application insights tag metadata.
+
+    `instrumentation_key` (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   """
   @spec track_request(
           name :: Types.name(),
@@ -273,14 +290,14 @@ defmodule ExInsights do
     |> track(instrumentation_key)
   end
 
-  # when instrumentation_key is not explicitly set by the caller (default is nil)
-  # the wrapping into an envelope will happen here but the instrumentation key
-  # will be later set inside the `ExInsights.Worker` using the startup args
-
   @spec track(Envelope.telemetry(), instrumentation_key()) :: :ok
   defp track(telemetry, instrumentation_key)
 
   defp track(telemetry, instrumentation_key) do
+    # when instrumentation_key is not explicitly set by the caller (default is nil)
+    # the wrapping into an envelope will happen here but the instrumentation key
+    # will be later set inside the `ExInsights.Worker` using the startup args
+
     telemetry
     |> Envelope.wrap(instrumentation_key)
     |> ExInsights.Worker.track()

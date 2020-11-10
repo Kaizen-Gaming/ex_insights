@@ -92,7 +92,7 @@ use ExInsights.Decoration.Attributes
 
 # add the @decorate track_xxx() attribute right above each function you need to track
 
-@decorate track_event() # will log the "update_user_email" event in AppInsights on funtion entry
+@decorate track_event() # will log the "update_user_email" event in AppInsights on function entry
 def update_user_email(email, user) do
   # ...
 end
@@ -109,7 +109,7 @@ end
 ```
 
 ## Migrating from 0.7.x to 0.8.x
-In order to make configuration of the client more flexible and in accordance to [library development guidelines for configuration](https://hexdocs.pm/elixir/master/library-guidelines.html#avoid-application-configuration), support for configuring the client by setting options directly inside config.exs files was dropped and configuration now needs to happen on supervisor startup.
+In order to make the library configuration more flexible and in accordance to [library development guidelines for configuration](https://hexdocs.pm/elixir/master/library-guidelines.html#avoid-application-configuration), support for configuring the client by setting options directly inside config.exs files was dropped and configuration now needs to happen on supervisor startup.
 
 For example instead of globally configuring ex_insights inside config.exs,
 ```elixir
@@ -126,7 +126,7 @@ children = [
 ]
 ```
 
-If you need to keep reading this value from your config files you can still do
+If you need to keep reading this value from your config files you can still do something like this
 ```elixir
 # in config.exs
 config :my_app, ex_insights_instrumentation_key: "0000-1111-2222-3333"
