@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0
+- __Breaking change__: ExInsights is no longer an application, you now need to start the Supervisor manually
+- __Breaking change__: Configuring from `config.exs` was dropped in favor of passing arguments to the Supervisor. This change along with the one above should help making the library more flexible to configure
+- cleaned up internals to make extending the library easier. Public interface has not changed.
+
 ## 0.7.0
 - __Breaking change__: start time and dependency id parameters as part of request and track dependency payload (thanks @huderlem)
 

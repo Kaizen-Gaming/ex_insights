@@ -11,54 +11,47 @@ Install from hex by adding `ex_insights` to your list of dependencies in `mix.ex
 ```elixir
 def deps do
   [
-    {:ex_insights, "~> 0.7"}
+    {:ex_insights, "~> 0.8"}
   ]
 end
 ```
 
-#### Note:
-The library is packaged as an application. In `elixir <= 1.3.x` you will need to add it explicitly to the list of
-applications started before your own inside `mix.exs` like this:
+You then need to start the `ExInsights.Supervisor` in your supervision tree. Example:
 
 ```elixir
-# This step is only required for older elixir installations
-def application do
-  [
-    applications: [:ex_insights]
-  ]
-end
+# inside the init/1 of some supervisor in your supervision tree (or application.ex)
+
+children = [
+  # ...
+  {ExInsights.Supervisor, instrumentation_key: "0000-1111-2222-3333"}
+]
+
+Supervisor.init(children, strategy: :one_for_one)
 ```
+### Note
+For migrating to 0.8.x and later versions read the migration instructions below
 
 ## Configuration
+ExInsights supports the following configuration options you can set when starting the `ExInsights.Supervisor`
 
-#### Instrumentation key
-You need at the very least to set your instrumentation key in order to start accepting telemetry requests
-on azure. You can do this by setting the `instrumentation_key` property like this:
+* `:instrumentation_key`: You can set the instrumentation key (Azure App Insights secret key) to use for sending data to Azure. It can be overriden on each `ExInsights.track_xxx` request. Needs to be present either by setting it here or on every request, otherwise the code will raise with an error (string)
+* `:flush_inteval_secs`: the number of seconds every which the client will send the telemetry data to Azure. Default is every 30 seconds since the last flushing (non-negative integer)
+* `:client_module`: the module to use for actually sending the requests. Mostly useful in tests (atom)
 
-```elixir
-config :ex_insights,
-  instrumentation_key: "0000-1111-2222-3333"
-```
-
-You can also use an environment variable instead if that's your preference
+Example:
 
 ```elixir
-config :ex_insights,
-  instrumentation_key: {:system, "INSTRUMENTATION_KEY"}
-# at runtime the application will look for the INSTRUMENTATION_KEY environment variable
-```
-
-If you forget to set the key the application will `raise` with an appropriate message anytime an `ExInsights.track_xxx` function is used.
-
-##### Notes
-- As of version 0.5 you can also set the instrumentation key _per request_.
-
-#### Flush interval
-You can also set the flush interval in seconds (ie the interval at which data will be sent over to azure). The default is `30 seconds`.
-
-```elixir
-config :ex_insights,
+options = [
+  instrumentation_key: "0000-1111-2222-3333",
   flush_interval_secs: 30
+]
+
+children = [
+  # ...
+  {ExInsights.Supervisor, options}
+]
+
+Supervisor.init(children, strategy: :one_for_one)
 ```
 
 ## Usage
@@ -112,6 +105,43 @@ end
 @decorate track_exception() # will track errors and exits
 def dangerous_stuff do
   # ... do work that may fail
+end
+```
+
+## Migrating from 0.7.x to 0.8.x
+In order to make configuring the client more flexible and in accordance to [library development guidelines for configuration](https://hexdocs.pm/elixir/master/library-guidelines.html#avoid-application-configuration), support for configuring the client by setting options directly inside config.exs files was dropped and configuration now needs to happen on supervisor startup.
+
+For example instead of simply doing this inside config.exs
+```elixir
+# No longer supported
+config :ex_insights,
+  instrumentation_key: "0000-1111-2222-3333"
+```
+
+You now need to pass this option to the `ExInsights.Supervisor` directly instead
+```elixir
+children = [
+  ...
+  {ExInsights.Supervisor, instrumentation_key: "0000-1111-2222-3333"}
+]
+```
+
+If you need to keep reading this value from your config files you can still do
+```elixir
+# in config.exs
+config :my_app, ex_insights_instrumentation_key: "0000-1111-2222-3333"
+
+# in you supervisor.ex file
+def read_instrumentation_key_from_config do
+  Application.get_env(:my_app, :ex_insights_instrumentation_key)
+end
+
+def init(_) do
+  ...
+  children = [
+    # ...
+    {ExInsights.Supervisor, instrumentation_key: read_instrumentation_key_from_config()}
+  ]
 end
 ```
 
