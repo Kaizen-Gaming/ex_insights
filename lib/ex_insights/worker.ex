@@ -1,4 +1,4 @@
-defmodule ExInsights.Aggregation.Worker do
+defmodule ExInsights.Worker do
   @moduledoc """
   A named genserver responsible for batching telemetry requests. Fires up a separate process every 30secs (configurable) to
   upload the data to azure

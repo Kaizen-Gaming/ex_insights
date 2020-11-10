@@ -16,7 +16,7 @@ defmodule ExInsights.Decoration.AttributesTest do
     end
 
     EventTest.hello(4)
-    ExInsights.Aggregation.Worker.flush()
+    ExInsights.Worker.flush()
     assert_receive {:items_sent, [_]}, 1000
   end
 
@@ -29,7 +29,7 @@ defmodule ExInsights.Decoration.AttributesTest do
       end
 
       Hello.hello("John")
-      ExInsights.Aggregation.Worker.flush()
+      ExInsights.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
 
       assert %{
@@ -50,7 +50,7 @@ defmodule ExInsights.Decoration.AttributesTest do
       end
 
       Exam.pass()
-      ExInsights.Aggregation.Worker.flush()
+      ExInsights.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
       assert %{data: %{baseData: %{success: false}}} = item
     end
@@ -63,7 +63,7 @@ defmodule ExInsights.Decoration.AttributesTest do
       end
 
       assert_raise RuntimeError, &Raisor.raise/0
-      ExInsights.Aggregation.Worker.flush()
+      ExInsights.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
 
       assert %{
@@ -93,7 +93,7 @@ defmodule ExInsights.Decoration.AttributesTest do
       assert_receive {:EXIT, _from, _reason}, 1000
       Process.flag(:trap_exit, false)
 
-      ExInsights.Aggregation.Worker.flush()
+      ExInsights.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
 
       assert %{
@@ -116,7 +116,7 @@ defmodule ExInsights.Decoration.AttributesTest do
       end
 
       assert_raise RuntimeError, &Honey.anyone_home?/0
-      ExInsights.Aggregation.Worker.flush()
+      ExInsights.Worker.flush()
       assert_receive {:items_sent, [item]}, 10000
 
       assert %{data: %{baseData: %{exceptions: [%{message: "git gone", parsedStack: _stack}]}}} =
@@ -139,7 +139,7 @@ defmodule ExInsights.Decoration.AttributesTest do
       assert_receive {:EXIT, _from, _reason}, 1000
       Process.flag(:trap_exit, false)
 
-      ExInsights.Aggregation.Worker.flush()
+      ExInsights.Worker.flush()
       assert_receive {:items_sent, [item]}, 1000
       assert %{data: %{baseData: %{exceptions: [%{message: msg, parsedStack: _stack}]}}} = item
       assert msg =~ "error babe @ GenServer.call"

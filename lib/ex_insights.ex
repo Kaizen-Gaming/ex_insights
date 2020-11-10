@@ -28,7 +28,7 @@ defmodule ExInsights do
   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   ```
   """
   @spec track_event(
@@ -60,7 +60,7 @@ defmodule ExInsights do
   severity_level: The level of severity for the event.
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   ```
   """
   @spec track_trace(
@@ -93,7 +93,7 @@ defmodule ExInsights do
   properties: map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   measurements: map[string, number] - metrics associated with this event, displayed in Metrics Explorer on the portal. Defaults to empty.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   ```
   """
   @spec track_exception(
@@ -137,7 +137,7 @@ defmodule ExInsights do
   value: the value of the metric (number)
   properties (optional): a map of [string -> string] pairs for adding extra properties to this event
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   ```
   """
   @spec track_metric(
@@ -169,7 +169,7 @@ defmodule ExInsights do
   properties (optional): map[string, string] - additional data used to filter events and metrics in the portal. Defaults to empty.
   id (optional): a unique identifier representing the dependency call.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   ```
   """
 
@@ -230,7 +230,7 @@ defmodule ExInsights do
   measurements (optional): a map of [string -> number] values associated with this event that can be aggregated/sumed/etc. on the UI
   id (optional): a unique identifier representing the request.
   tags (optional): map[string, string] - additional application insights tag metadata.
-  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Aggregation.Worker` will be used (see README.md)
+  instrumentation_key (optional): Azure application insights API key. If not set it will the default one provided to the `ExInsights.Worker` will be used (see README.md)
   ```
   """
   @spec track_request(
@@ -275,7 +275,7 @@ defmodule ExInsights do
 
   # when instrumentation_key is not explicitly set by the caller (default is nil)
   # the wrapping into an envelope will happen here but the instrumentation key
-  # will be later set inside the `ExInsights.Aggregation.Worker` using the startup args
+  # will be later set inside the `ExInsights.Worker` using the startup args
 
   @spec track(Envelope.telemetry(), instrumentation_key()) :: :ok
   defp track(telemetry, instrumentation_key)
@@ -283,6 +283,6 @@ defmodule ExInsights do
   defp track(telemetry, instrumentation_key) do
     telemetry
     |> Envelope.wrap(instrumentation_key)
-    |> ExInsights.Aggregation.Worker.track()
+    |> ExInsights.Worker.track()
   end
 end

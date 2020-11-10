@@ -10,7 +10,7 @@ defmodule ExInsights.TestHelper do
         import ExInsights.TestHelper
 
         {:ok, pid} =
-          ExInsights.Aggregation.Worker.start_link(
+          ExInsights.Worker.start_link(
             flush_interval_secs: 1,
             client_module: @client,
             instrumentation_key: get_test_key()

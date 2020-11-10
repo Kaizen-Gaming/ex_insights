@@ -1,10 +1,10 @@
-defmodule ExInsights.Aggregation.Supervisor do
+defmodule ExInsights.Supervisor do
   @moduledoc """
-  Starts the `ExInsights.Aggregation.Worker` for uploading telemetry to Azure
+  Starts the `ExInsights.Worker` for uploading telemetry to Azure
   """
 
   use Supervisor
-  alias ExInsights.Aggregation.Worker
+  alias ExInsights.Worker
 
   @name __MODULE__
 

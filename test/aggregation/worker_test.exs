@@ -1,4 +1,4 @@
-defmodule ExInsights.Aggregation.WorkerTest do
+defmodule ExInsights.WorkerTest do
   # no async here!
   use ExUnit.Case
   require ExInsights.TestHelper
@@ -6,13 +6,13 @@ defmodule ExInsights.Aggregation.WorkerTest do
   ExInsights.TestHelper.setup_test_client()
 
   test "flushing when no messages does not send data to azure" do
-    ExInsights.Aggregation.Worker.flush()
+    ExInsights.Worker.flush()
     refute_receive {:items_sent, []}, 1000
   end
 
   test "flushing with messages sends data properly" do
     ExInsights.track_event("hello")
-    ExInsights.Aggregation.Worker.flush()
+    ExInsights.Worker.flush()
     assert_receive {:items_sent, [_]}, 1000
   end
 
