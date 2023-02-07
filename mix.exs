@@ -31,11 +31,11 @@ defmodule ExInsights.Mixfile do
 
   defp deps do
     [
-      {:jason, "~> 1.2"},
-      {:httpoison, "~> 1.6"},
       {:decorator, "~> 1.3"},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:httpoison, "~> 1.6"},
+      {:jason, "~> 1.2"},
     ]
   end
 
