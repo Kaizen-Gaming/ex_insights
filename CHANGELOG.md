@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.8.1
+- Update deps
 ## 0.8.0
 - __Breaking change__: ExInsights is no longer an application, you now need to start the Supervisor manually
 - __Breaking change__: Configuring from `config.exs` was dropped in favor of passing arguments to the Supervisor. This change along with the one above should help making the library more flexible to configure
